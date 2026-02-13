@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "ai-resume-analyzer-prod"
+  },
+  "targets": {
+    "ai-resume-analyzer-prod": {
+      "hosting": {
+        "app": [
+          "ai-resume-analyzer-app"
+        ]
+      }
+    }
+  }
+}
