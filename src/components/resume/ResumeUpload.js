@@ -1,18 +1,15 @@
 import {
   Analytics,
-  ArrowForward,
   CheckCircle,
   CloudUpload,
   Description,
   PictureAsPdf,
-  Refresh,
   Warning,
 } from '@mui/icons-material';
 import {
   Alert,
   alpha,
   Box,
-  Button,
   Card,
   CardContent,
   Chip,
@@ -51,7 +48,6 @@ export default function ResumeUpload() {
   const [file, setFile] = useState(null);
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState(null);
-  const [extractedText, setExtractedText] = useState('');
   const [validationResults, setValidationResults] = useState(null);
 
   const onDrop = useCallback(async (acceptedFiles) => {
@@ -101,7 +97,6 @@ export default function ResumeUpload() {
       // Step 3: Extract Text
       setActiveStep(2);
       const text = await extractText(uploadedFile);
-      setExtractedText(text);
 
       // Validate extracted text
       const validation = validateResume(text);
@@ -111,7 +106,13 @@ export default function ResumeUpload() {
       setActiveStep(3);
 
       // Upload to Firebase
+      console.log('Calling uploadResume with:', {
+        uid: currentUser.uid,
+        fileName: uploadedFile.name,
+        textLength: text.length,
+      });
       const resumeData = await uploadResume(currentUser.uid, uploadedFile, text);
+      console.log('uploadResume returned:', resumeData);
 
       toast.success('Resume uploaded successfully!');
 

@@ -8,57 +8,77 @@ import {
   orderBy,
   limit,
   doc,
+  setDoc,
   updateDoc,
   deleteDoc,
   Timestamp,
+  increment,
 } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+import { ref, deleteObject } from 'firebase/storage';
+
 import { db, storage } from '../firebase/config';
+
+// Helper to convert File to Base64
+const fileToBase64 = (file) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = (error) => reject(error);
+  });
+};
 
 // Upload resume file and metadata
 export const uploadResume = async (userId, file, extractedText) => {
   try {
-    // Upload file to Firebase Storage
-    const timestamp = Date.now();
-    const fileName = `${timestamp}_${file.name}`;
-    const storageRef = ref(storage, `resumes/${userId}/${fileName}`);
-    await uploadBytes(storageRef, file);
-    const fileUrl = await getDownloadURL(storageRef);
+    if (!userId) throw new Error('User ID is required for upload');
+    if (!file) throw new Error('File is required for upload');
+
+    console.log(`Starting Firestore-based resume upload for user: ${userId}`);
+
+    const base64File = await fileToBase64(file);
+    console.log('File converted successfully.');
 
     // Create resume document in Firestore
+    console.log('Creating resume document in Firestore...');
     const resumeData = {
       userId,
       fileName: file.name,
-      fileUrl,
+      fileData: base64File, // Store the actual file content here
       fileType: file.type,
       fileSize: file.size,
-      extractedText,
+      extractedText: extractedText || 'No text extracted',
       uploadedAt: Timestamp.now(),
       isActive: true,
       analysesCount: 0,
       metadata: {
-        wordCount: extractedText.split(/\s+/).length,
-        characterCount: extractedText.length,
+        wordCount: extractedText ? extractedText.split(/\s+/).length : 0,
+        characterCount: extractedText ? extractedText.length : 0,
         lastAnalyzed: null,
       },
     };
 
     const docRef = await addDoc(collection(db, 'resumes'), resumeData);
+    console.log('Resume document created in Firestore:', docRef.id);
 
     // Update user's resume count
     const userRef = doc(db, 'users', userId);
-    await updateDoc(userRef, {
-      totalResumes: increment(1),
-      lastResumeUpload: Timestamp.now(),
-    });
+    await setDoc(
+      userRef,
+      {
+        totalResumes: increment(1),
+        lastResumeUpload: Timestamp.now(),
+      },
+      { merge: true }
+    );
 
     return {
       id: docRef.id,
       ...resumeData,
     };
   } catch (error) {
-    console.error('Error uploading resume:', error);
-    throw new Error('Failed to upload resume');
+    console.error('Fatal error in uploadResume:', error);
+    throw new Error('Failed to save resume: ' + error.message);
   }
 };
 
@@ -113,14 +133,10 @@ export const getResumeById = async (resumeId) => {
 };
 
 // Delete resume
-export const deleteResume = async (resumeId, userId, fileUrl) => {
+export const deleteResume = async (resumeId, userId) => {
   try {
     // Delete from Firestore
     await deleteDoc(doc(db, 'resumes', resumeId));
-
-    // Delete from Storage
-    const storageRef = ref(storage, fileUrl);
-    await deleteObject(storageRef);
 
     // Update user count
     const userRef = doc(db, 'users', userId);

@@ -11,6 +11,7 @@ import {
   updateDoc,
   deleteDoc,
   Timestamp,
+  increment,
 } from 'firebase/firestore';
 import { db } from '../firebase/config';
 
