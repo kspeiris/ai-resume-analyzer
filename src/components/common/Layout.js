@@ -1,13 +1,15 @@
+import { Box, useMediaQuery, useTheme } from '@mui/material';
+import { AnimatePresence, motion } from 'framer-motion';
 import React from 'react';
-import { Outlet } from 'react-router-dom';
-import { Box, useTheme, useMediaQuery } from '@mui/material';
-import Navbar from './Navbar';
+import { Outlet, useLocation } from 'react-router-dom';
+
 import Footer from './Footer';
+import Navbar from './Navbar';
 import Sidebar from './Sidebar';
-import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Layout() {
   const theme = useTheme();
+  const location = useLocation();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [sidebarOpen, setSidebarOpen] = React.useState(!isMobile);
 
@@ -18,7 +20,7 @@ export default function Layout() {
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
       <Sidebar open={sidebarOpen} onClose={toggleSidebar} />
-      
+
       <Box
         component="main"
         sx={{
@@ -36,7 +38,7 @@ export default function Layout() {
         }}
       >
         <Navbar onMenuClick={toggleSidebar} />
-        
+
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}
@@ -51,7 +53,7 @@ export default function Layout() {
             </Box>
           </motion.div>
         </AnimatePresence>
-        
+
         <Footer />
       </Box>
     </Box>

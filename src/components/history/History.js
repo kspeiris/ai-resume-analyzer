@@ -1,52 +1,51 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
-  Container,
-  Typography,
+  Assessment,
+  Compare,
+  Delete,
+  Download,
+  MoreVert,
+  Refresh,
+  Search,
+  TrendingDown,
+  TrendingUp,
+  Visibility,
+} from '@mui/icons-material';
+import {
   Box,
+  Button,
+  Card,
+  CardContent,
+  Chip,
+  Container,
+  Divider,
+  Grid,
+  IconButton,
+  InputAdornment,
+  LinearProgress,
+  ListItemIcon,
+  ListItemText,
+  Menu,
+  MenuItem,
   Paper,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
-  TableRow,
   TablePagination,
-  Chip,
-  IconButton,
-  Button,
+  TableRow,
   TextField,
-  InputAdornment,
-  Menu,
-  MenuItem,
-  ListItemIcon,
-  ListItemText,
-  LinearProgress,
-  Alert,
-  Grid,
-  Card,
-  CardContent,
-  Divider
+  Typography,
 } from '@mui/material';
-import {
-  Search,
-  FilterList,
-  Delete,
-  Visibility,
-  Download,
-  Compare,
-  MoreVert,
-  Refresh,
-  Assessment,
-  TrendingUp,
-  TrendingDown
-} from '@mui/icons-material';
 import { motion } from 'framer-motion';
+import React, { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
+
 import { useAuth } from '../../contexts/AuthContext';
-import { getUserAnalyses, deleteAnalysis } from '../../services/analysisService';
+import { deleteAnalysis, getUserAnalyses } from '../../services/analysisService';
 import { exportAnalysisHistory } from '../../utils/exportUtils';
 import { formatDate, getScoreColor, getScoreStatus } from '../../utils/helpers';
-import toast from 'react-hot-toast';
 
 export default function History() {
   const navigate = useNavigate();
@@ -66,10 +65,14 @@ export default function History() {
   });
 
   useEffect(() => {
-    fetchAnalyses();
-  }, []);
+    if (currentUser?.uid) {
+      fetchAnalyses();
+    }
+  }, [currentUser]);
 
   const fetchAnalyses = async () => {
+    if (!currentUser?.uid) return;
+
     try {
       setLoading(true);
       const data = await getUserAnalyses(currentUser.uid, 100);
@@ -89,7 +92,7 @@ export default function History() {
     const scores = data.map(a => a.scores?.overall || 0);
     const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
     const best = Math.max(...scores);
-    
+
     let improvement = 0;
     if (data.length >= 2) {
       const lastTwo = data.slice(0, 2);
@@ -146,7 +149,7 @@ export default function History() {
       const compareList = JSON.parse(localStorage.getItem('compareAnalyses') || '[]');
       compareList.push(selectedAnalysis.id);
       localStorage.setItem('compareAnalyses', JSON.stringify(compareList));
-      
+
       if (compareList.length >= 2) {
         navigate('/compare');
       } else {
@@ -156,7 +159,7 @@ export default function History() {
     handleMenuClose();
   };
 
-  const filteredAnalyses = analyses.filter(analysis => 
+  const filteredAnalyses = analyses.filter(analysis =>
     analysis.jobDescription?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     new Date(analysis.createdAt).toLocaleDateString().includes(searchTerm)
   );
@@ -391,7 +394,7 @@ export default function History() {
                 </TableBody>
               </Table>
             </TableContainer>
-            
+
             <TablePagination
               rowsPerPageOptions={[5, 10, 25]}
               component="div"

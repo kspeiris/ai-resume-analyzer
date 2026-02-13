@@ -1,54 +1,48 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
 import {
-  Container,
-  Grid,
-  Typography,
+  Analytics,
+  CheckCircle,
+  Description,
+  Download,
+  EmojiEvents,
+  Lightbulb,
+  Refresh,
+  Share,
+  Warning,
+  Work,
+} from '@mui/icons-material';
+import {
+  Alert,
   Box,
+  Button,
   Card,
   CardContent,
   Chip,
-  Button,
+  CircularProgress,
+  Container,
+  Grid,
   LinearProgress,
-  Divider,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
   Paper,
+  Tab,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableRow,
   Tabs,
-  Tab,
-  IconButton,
   Tooltip,
-  Alert
+  Typography,
 } from '@mui/material';
-import {
-  TrendingUp,
-  TrendingDown,
-  CheckCircle,
-  Warning,
-  Error,
-  Lightbulb,
-  Download,
-  Share,
-  Refresh,
-  Analytics,
-  Description,
-  Work,
-  School,
-  EmojiEvents
-} from '@mui/icons-material';
 import { motion } from 'framer-motion';
-import { RadialBarChart, RadialBar, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { useAuth } from '../../contexts/AuthContext';
+import React, { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
+import { useNavigate, useParams } from 'react-router-dom';
+
 import { getAnalysis } from '../../services/analysisService';
 import { exportAnalysisReport } from '../../utils/exportUtils';
-import toast from 'react-hot-toast';
 
 function TabPanel({ children, value, index }) {
   return (
@@ -61,7 +55,6 @@ function TabPanel({ children, value, index }) {
 export default function AnalysisResults() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { currentUser } = useAuth();
   const [loading, setLoading] = useState(true);
   const [analysis, setAnalysis] = useState(null);
   const [tabValue, setTabValue] = useState(0);
@@ -130,11 +123,7 @@ export default function AnalysisResults() {
     return 'error';
   };
 
-  const getScoreIcon = (score) => {
-    if (score >= 80) return <CheckCircle />;
-    if (score >= 60) return <Warning />;
-    return <Error />;
-  };
+
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -262,7 +251,7 @@ export default function AnalysisResults() {
                         <ListItemIcon>
                           <CheckCircle color="success" />
                         </ListItemIcon>
-                        <ListItemText 
+                        <ListItemText
                           primary="Strong Keyword Match"
                           secondary="Your resume contains many relevant keywords from the job description"
                         />
@@ -273,7 +262,7 @@ export default function AnalysisResults() {
                         <ListItemIcon>
                           <CheckCircle color="success" />
                         </ListItemIcon>
-                        <ListItemText 
+                        <ListItemText
                           primary="Good Formatting"
                           secondary="Your resume is well-structured and ATS-friendly"
                         />
@@ -284,7 +273,7 @@ export default function AnalysisResults() {
                         <ListItemIcon>
                           <CheckCircle color="success" />
                         </ListItemIcon>
-                        <ListItemText 
+                        <ListItemText
                           primary="Strong Impact Statements"
                           secondary="Good use of quantifiable achievements and action verbs"
                         />
@@ -302,7 +291,7 @@ export default function AnalysisResults() {
                         <ListItemIcon>
                           <Warning color="warning" />
                         </ListItemIcon>
-                        <ListItemText 
+                        <ListItemText
                           primary="Add More Keywords"
                           secondary="Incorporate missing keywords from the job description"
                         />
@@ -313,7 +302,7 @@ export default function AnalysisResults() {
                         <ListItemIcon>
                           <Warning color="warning" />
                         </ListItemIcon>
-                        <ListItemText 
+                        <ListItemText
                           primary="Improve Semantic Match"
                           secondary="Better align your experience with job requirements"
                         />
@@ -324,7 +313,7 @@ export default function AnalysisResults() {
                         <ListItemIcon>
                           <Warning color="warning" />
                         </ListItemIcon>
-                        <ListItemText 
+                        <ListItemText
                           primary="Fix Formatting"
                           secondary="Use standard section headers and avoid complex formatting"
                         />
@@ -413,7 +402,7 @@ export default function AnalysisResults() {
                         <ListItemIcon>
                           <EmojiEvents color="secondary" />
                         </ListItemIcon>
-                        <ListItemText 
+                        <ListItemText
                           primary={item}
                           secondary="More impactful and achievement-oriented"
                         />
@@ -477,7 +466,7 @@ export default function AnalysisResults() {
                       <TableRow>
                         <TableCell>Overall Compatibility</TableCell>
                         <TableCell align="right">
-                          <Chip 
+                          <Chip
                             label={`${analysis.scores.overall}%`}
                             color={getScoreColor(analysis.scores.overall)}
                           />

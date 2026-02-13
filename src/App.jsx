@@ -1,19 +1,20 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import React from 'react';
 import { Toaster } from 'react-hot-toast';
-import { AuthProvider } from './contexts/AuthContext';
-import PrivateRoute from './components/common/PrivateRoute';
-import Layout from './components/common/Layout';
-import Landing from './components/landing/Landing';
+import { BrowserRouter as Router, Navigate, Route, Routes } from 'react-router-dom';
+
+import AnalysisResults from './components/analysis/AnalysisResults';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
+import Layout from './components/common/Layout';
+import PrivateRoute from './components/common/PrivateRoute';
 import Dashboard from './components/dashboard/Dashboard';
-import ResumeUpload from './components/resume/ResumeUpload';
-import JobDescription from './components/job/JobDescription';
-import AnalysisResults from './components/analysis/AnalysisResults';
 import History from './components/history/History';
+import JobDescription from './components/job/JobDescription';
+import Landing from './components/landing/Landing';
+import ResumeUpload from './components/resume/ResumeUpload';
+import { AuthProvider } from './contexts/AuthContext';
 
 const theme = createTheme({
   palette: {
@@ -114,7 +115,7 @@ function App() {
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </Router>
-        <Toaster 
+        <Toaster
           position="top-right"
           toastOptions={{
             duration: 4000,

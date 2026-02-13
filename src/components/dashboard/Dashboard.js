@@ -1,41 +1,48 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
-  Container,
-  Grid,
-  Typography,
+  Add,
+  ArrowForward,
+  Assessment,
+  Description,
+  History,
+  Refresh,
+  TrendingUp,
+} from '@mui/icons-material';
+import {
+  Avatar,
   Box,
+  Button,
   Card,
   CardContent,
-  Button,
-  IconButton,
-  LinearProgress,
   Chip,
-  Paper,
+  Container,
+  Grid,
+  LinearProgress,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Avatar,
-  useTheme
+  Typography,
+  useTheme,
 } from '@mui/material';
-import {
-  Add,
-  TrendingUp,
-  Assessment,
-  Description,
-  History,
-  ArrowForward,
-  Refresh
-} from '@mui/icons-material';
 import { motion } from 'framer-motion';
+import React, { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
+import {
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
+
 import { useAuth } from '../../contexts/AuthContext';
 import { getUserAnalyses } from '../../services/analysisService';
 import { getUserStats } from '../../services/userService';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import toast from 'react-hot-toast';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -46,14 +53,18 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchDashboardData();
-  }, []);
+    if (currentUser?.uid) {
+      fetchDashboardData();
+    }
+  }, [currentUser]);
 
   const fetchDashboardData = async () => {
+    if (!currentUser?.uid) return;
+
     try {
       setLoading(true);
       const [analysesData, statsData] = await Promise.all([
-        getUserAnalyses(5),
+        getUserAnalyses(currentUser.uid, 5),
         getUserStats(currentUser.uid)
       ]);
       setAnalyses(analysesData.analyses);
@@ -175,10 +186,10 @@ export default function Dashboard() {
                       <XAxis dataKey="date" />
                       <YAxis domain={[0, 100]} />
                       <Tooltip />
-                      <Line 
-                        type="monotone" 
-                        dataKey="score" 
-                        stroke={theme.palette.primary.main} 
+                      <Line
+                        type="monotone"
+                        dataKey="score"
+                        stroke={theme.palette.primary.main}
                         strokeWidth={2}
                       />
                     </LineChart>
@@ -268,8 +279,8 @@ export default function Dashboard() {
                         <TableCell>
                           <Chip
                             label={`${analysis.scores?.overall}%`}
-                            color={analysis.scores?.overall >= 80 ? 'success' : 
-                                   analysis.scores?.overall >= 60 ? 'warning' : 'error'}
+                            color={analysis.scores?.overall >= 80 ? 'success' :
+                              analysis.scores?.overall >= 60 ? 'warning' : 'error'}
                             size="small"
                           />
                         </TableCell>

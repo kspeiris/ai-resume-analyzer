@@ -1,29 +1,29 @@
-import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
 import {
-  Drawer,
   Box,
+  Button,
+  Divider,
+  Drawer,
   List,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Divider,
+  Paper,
   Typography,
+  useMediaQuery,
   useTheme,
-  useMediaQuery
 } from '@mui/material';
 import {
+  Analytics,
   Dashboard,
-  Upload,
   Description,
-  History,
-  Assessment,
-  Settings,
   Help,
-  Analytics
+  History,
+  Settings,
+  Upload,
 } from '@mui/icons-material';
-import { motion } from 'framer-motion';
+import React from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const menuItems = [
   { text: 'Dashboard', icon: <Dashboard />, path: '/dashboard' },
@@ -47,12 +47,12 @@ export default function Sidebar({ open, onClose }) {
   const drawer = (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <Box sx={{ p: 3 }}>
-        <Typography 
-          variant="h5" 
-          sx={{ 
+        <Typography
+          variant="h5"
+          sx={{
             fontWeight: 700,
             color: theme.palette.primary.main,
-            cursor: 'pointer'
+            cursor: 'pointer',
           }}
           onClick={() => navigate('/dashboard')}
         >
@@ -62,9 +62,9 @@ export default function Sidebar({ open, onClose }) {
           Analyzer v1.0
         </Typography>
       </Box>
-      
+
       <Divider />
-      
+
       <List sx={{ flex: 1, px: 2 }}>
         {menuItems.map((item) => (
           <ListItem key={item.text} disablePadding sx={{ mb: 0.5 }}>
@@ -91,16 +91,19 @@ export default function Sidebar({ open, onClose }) {
                 },
               }}
             >
-              <ListItemIcon sx={{ 
-                minWidth: 40,
-                color: location.pathname === item.path 
-                  ? theme.palette.primary.main 
-                  : theme.palette.text.secondary
-              }}>
+              <ListItemIcon
+                sx={{
+                  minWidth: 40,
+                  color:
+                    location.pathname === item.path
+                      ? theme.palette.primary.main
+                      : theme.palette.text.secondary,
+                }}
+              >
                 {item.icon}
               </ListItemIcon>
-              <ListItemText 
-                primary={item.text} 
+              <ListItemText
+                primary={item.text}
                 primaryTypographyProps={{
                   fontSize: 14,
                   fontWeight: location.pathname === item.path ? 600 : 400,
@@ -110,9 +113,9 @@ export default function Sidebar({ open, onClose }) {
           </ListItem>
         ))}
       </List>
-      
+
       <Divider />
-      
+
       <List sx={{ px: 2, py: 2 }}>
         {bottomMenuItems.map((item) => (
           <ListItem key={item.text} disablePadding sx={{ mb: 0.5 }}>
@@ -132,13 +135,13 @@ export default function Sidebar({ open, onClose }) {
           </ListItem>
         ))}
       </List>
-      
+
       <Box sx={{ p: 2, mt: 'auto' }}>
-        <Paper 
-          sx={{ 
-            p: 2, 
+        <Paper
+          sx={{
+            p: 2,
             bgcolor: theme.palette.primary.main + '10',
-            borderRadius: 2
+            borderRadius: 2,
           }}
         >
           <Typography variant="subtitle2" gutterBottom>
@@ -147,12 +150,7 @@ export default function Sidebar({ open, onClose }) {
           <Typography variant="caption" color="text.secondary" paragraph>
             Check our documentation or contact support
           </Typography>
-          <Button
-            fullWidth
-            variant="contained"
-            size="small"
-            onClick={() => navigate('/support')}
-          >
+          <Button fullWidth variant="contained" size="small" onClick={() => navigate('/support')}>
             Get Support
           </Button>
         </Paper>
@@ -161,10 +159,7 @@ export default function Sidebar({ open, onClose }) {
   );
 
   return (
-    <Box
-      component="nav"
-      sx={{ width: { md: 240 }, flexShrink: { md: 0 } }}
-    >
+    <Box component="nav" sx={{ width: { md: 240 }, flexShrink: { md: 0 } }}>
       {isMobile ? (
         <Drawer
           variant="temporary"
@@ -172,10 +167,10 @@ export default function Sidebar({ open, onClose }) {
           onClose={onClose}
           ModalProps={{ keepMounted: true }}
           sx={{
-            '& .MuiDrawer-paper': { 
-              boxSizing: 'border-box', 
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
               width: 240,
-              borderRight: 'none'
+              borderRight: 'none',
             },
           }}
         >
@@ -185,11 +180,11 @@ export default function Sidebar({ open, onClose }) {
         <Drawer
           variant="permanent"
           sx={{
-            '& .MuiDrawer-paper': { 
-              boxSizing: 'border-box', 
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
               width: 240,
               borderRight: `1px solid ${theme.palette.divider}`,
-              backgroundColor: theme.palette.background.default
+              backgroundColor: theme.palette.background.default,
             },
           }}
           open

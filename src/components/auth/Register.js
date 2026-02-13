@@ -1,35 +1,36 @@
-import React, { useState } from 'react';
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import {
-  Container,
+  CheckCircle,
+  Email,
+  Google,
+  Lock,
+  Person,
+  Visibility,
+  VisibilityOff,
+} from '@mui/icons-material';
+import {
+  Alert,
   Box,
-  Paper,
-  Typography,
-  TextField,
   Button,
-  Link,
+  Container,
   Divider,
   IconButton,
   InputAdornment,
-  Alert,
-  Stepper,
+  LinearProgress,
+  Link,
+  Paper,
   Step,
   StepLabel,
-  LinearProgress
+  Stepper,
+  TextField,
+  Typography,
 } from '@mui/material';
-import {
-  Google,
-  Visibility,
-  VisibilityOff,
-  Person,
-  Email,
-  Lock,
-  CheckCircle
-} from '@mui/icons-material';
-import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
 import { motion } from 'framer-motion';
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
+
 import { useAuth } from '../../contexts/AuthContext';
 import { validatePassword } from '../../utils/validators';
 
@@ -70,9 +71,9 @@ export default function Register() {
       setError('');
       setLoading(true);
       setActiveStep(1);
-      
+
       await signup(data.email, data.password, data.name);
-      
+
       setActiveStep(2);
       setTimeout(() => {
         navigate('/dashboard');
@@ -93,8 +94,8 @@ export default function Register() {
   };
 
   const passwordStrength = getPasswordStrength();
-  const passwordColor = passwordStrength >= 80 ? 'success' : 
-                       passwordStrength >= 50 ? 'warning' : 'error';
+  const passwordColor = passwordStrength >= 80 ? 'success' :
+    passwordStrength >= 50 ? 'warning' : 'error';
 
   return (
     <Container component="main" maxWidth="sm">
@@ -248,8 +249,8 @@ export default function Register() {
                         Password Strength
                       </Typography>
                       <Typography variant="caption" color={`${passwordColor}.main`}>
-                        {passwordStrength >= 80 ? 'Strong' : 
-                         passwordStrength >= 50 ? 'Medium' : 'Weak'}
+                        {passwordStrength >= 80 ? 'Strong' :
+                          passwordStrength >= 50 ? 'Medium' : 'Weak'}
                       </Typography>
                     </Box>
                     <LinearProgress
@@ -310,7 +311,7 @@ export default function Register() {
                   variant="outlined"
                   size="large"
                   startIcon={<Google />}
-                  onClick={() => {}}
+                  onClick={() => { }}
                   disabled={loading}
                   sx={{ mb: 2 }}
                 >

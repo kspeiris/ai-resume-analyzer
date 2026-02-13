@@ -1,33 +1,33 @@
-import React, { useState } from 'react';
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import {
-  Container,
-  Box,
-  Paper,
-  Typography,
-  TextField,
-  Button,
-  Link,
-  Divider,
-  IconButton,
-  InputAdornment,
-  Alert,
-  Checkbox,
-  FormControlLabel
-} from '@mui/material';
-import {
+  Email,
   Google,
+  Lock,
   Visibility,
   VisibilityOff,
-  Email,
-  Lock
 } from '@mui/icons-material';
-import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
+import {
+  Alert,
+  Box,
+  Button,
+  Checkbox,
+  Container,
+  Divider,
+  FormControlLabel,
+  IconButton,
+  InputAdornment,
+  Link,
+  Paper,
+  TextField,
+  Typography,
+} from '@mui/material';
 import { motion } from 'framer-motion';
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
+
 import { useAuth } from '../../contexts/AuthContext';
-import { validateEmail } from '../../utils/validators';
 
 const schema = yup.object({
   email: yup.string().email('Invalid email').required('Email is required'),

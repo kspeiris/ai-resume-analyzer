@@ -1,32 +1,34 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
-  AppBar,
-  Toolbar,
-  Typography,
-  IconButton,
-  Avatar,
-  Menu,
-  MenuItem,
-  Box,
-  Badge,
-  Tooltip,
-  Divider,
-  ListItemIcon,
-  useTheme
-} from '@mui/material';
-import {
+  Dashboard,
+  DarkMode,
+  Help,
+  History,
+  LightMode,
+  Logout,
   Menu as MenuIcon,
   Notifications,
-  Settings,
-  Logout,
   Person,
-  Dashboard,
-  History,
-  Help,
-  DarkMode,
-  LightMode
+  Settings,
 } from '@mui/icons-material';
+import {
+  AppBar,
+  Avatar,
+  Badge,
+  Box,
+  Button,
+  Divider,
+  IconButton,
+  ListItemIcon,
+  Menu,
+  MenuItem,
+  Toolbar,
+  Tooltip,
+  Typography,
+  useTheme,
+} from '@mui/material';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme as useCustomTheme } from '../../contexts/ThemeContext';
 
@@ -66,13 +68,13 @@ export default function Navbar({ onMenuClick }) {
   };
 
   return (
-    <AppBar 
-      position="sticky" 
+    <AppBar
+      position="sticky"
       elevation={0}
       sx={{
         backgroundColor: theme.palette.background.paper,
         borderBottom: `1px solid ${theme.palette.divider}`,
-        color: theme.palette.text.primary
+        color: theme.palette.text.primary,
       }}
     >
       <Toolbar>
@@ -89,11 +91,11 @@ export default function Navbar({ onMenuClick }) {
         <Typography
           variant="h6"
           component="div"
-          sx={{ 
-            flexGrow: 1, 
+          sx={{
+            flexGrow: 1,
             cursor: 'pointer',
             fontWeight: 700,
-            color: theme.palette.primary.main
+            color: theme.palette.primary.main,
           }}
           onClick={() => navigate('/dashboard')}
         >
@@ -120,7 +122,7 @@ export default function Navbar({ onMenuClick }) {
             open={Boolean(notificationAnchor)}
             onClose={handleCloseNotifications}
             PaperProps={{
-              sx: { width: 320, maxHeight: 400 }
+              sx: { width: 320, maxHeight: 400 },
             }}
           >
             <Box sx={{ p: 2 }}>
@@ -148,21 +150,17 @@ export default function Navbar({ onMenuClick }) {
           </Menu>
 
           <Tooltip title="Account settings">
-            <IconButton
-              onClick={handleMenu}
-              size="small"
-              sx={{ ml: 1 }}
-            >
-              <Avatar 
-                sx={{ 
-                  width: 32, 
+            <IconButton onClick={handleMenu} size="small" sx={{ ml: 1 }}>
+              <Avatar
+                sx={{
+                  width: 32,
                   height: 32,
-                  bgcolor: theme.palette.primary.main
+                  bgcolor: theme.palette.primary.main,
                 }}
               >
-                {currentUser?.displayName?.charAt(0) || 
-                 userProfile?.name?.charAt(0) || 
-                 currentUser?.email?.charAt(0).toUpperCase()}
+                {currentUser?.displayName?.charAt(0) ||
+                  userProfile?.name?.charAt(0) ||
+                  currentUser?.email?.charAt(0).toUpperCase()}
               </Avatar>
             </IconButton>
           </Tooltip>
@@ -172,7 +170,7 @@ export default function Navbar({ onMenuClick }) {
             open={Boolean(anchorEl)}
             onClose={handleClose}
             PaperProps={{
-              sx: { width: 240 }
+              sx: { width: 240 },
             }}
           >
             <Box sx={{ px: 2, py: 1.5 }}>

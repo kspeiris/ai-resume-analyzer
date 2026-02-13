@@ -58,6 +58,10 @@ export const getAnalysis = async (analysisId) => {
 // Get user analyses with pagination
 export const getUserAnalyses = async (userId, limitCount = 10, lastDoc = null) => {
   try {
+    if (!userId) {
+      throw new Error('User ID is required to fetch analyses');
+    }
+
     let q;
     
     if (lastDoc) {
@@ -130,6 +134,10 @@ export const updateAnalysisFeedback = async (analysisId, feedback) => {
 // Get analysis statistics
 export const getAnalysisStats = async (userId) => {
   try {
+    if (!userId) {
+      throw new Error('User ID is required to fetch analysis stats');
+    }
+
     const q = query(
       collection(db, 'analyses'),
       where('userId', '==', userId),
