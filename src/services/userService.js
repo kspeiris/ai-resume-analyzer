@@ -45,9 +45,18 @@ const getLocalUserStats = (userId) => {
 
   let improvementRate = 0;
   if (scores.length >= 2) {
-    const [latest, previous] = scores;
+    const latest = scores[0];
+    const previous = scores[1];
     improvementRate = previous ? Math.round(((latest - previous) / previous) * 100) : 0;
   }
+
+  const scoreHistory = analyses
+    .slice(0, 10)
+    .map((a) => ({
+      date: new Date(a.createdAt).toLocaleDateString(),
+      score: a.scores?.overall || 0,
+    }))
+    .reverse();
 
   const resumeLimit = profile.resumeLimit || 5;
 
@@ -56,6 +65,7 @@ const getLocalUserStats = (userId) => {
     totalResumes: resumes.length,
     averageScore,
     improvementRate,
+    scoreHistory,
     subscription: profile.subscription || 'free',
     resumeLimit,
     remainingAnalyses: Math.max(0, resumeLimit - analyses.length),
@@ -187,12 +197,22 @@ export const resetPassword = async (email) => {
 
 // Get user statistics
 export const getUserStats = async (userId) => {
+  // Always try local stats first as it's faster and works offline/with CORS issues
+  const localStats = getLocalUserStats(userId);
+
   try {
+    // If we have some local analyses, we can optionally just return those
+    // to keep the UI snappy. We only check Firestore if we want to sync.
+    if (localStats.totalAnalyses > 0) {
+      return localStats;
+    }
+
     const userRef = doc(db, 'users', userId);
+    // Add a simple timeout/protection would be better, but for now:
     const userSnap = await getDoc(userRef);
 
     if (!userSnap.exists()) {
-      return getLocalUserStats(userId);
+      return localStats;
     }
 
     const userData = userSnap.data();
@@ -202,13 +222,14 @@ export const getUserStats = async (userId) => {
       totalResumes: userData.totalResumes || 0,
       averageScore: userData.stats?.averageScore || 0,
       improvementRate: userData.stats?.improvementRate || 0,
+      scoreHistory: userData.stats?.scoreHistory || [],
       subscription: userData.subscription || 'free',
       resumeLimit: userData.resumeLimit || 5,
       remainingAnalyses: (userData.resumeLimit || 5) - (userData.analysesCount || 0),
     };
   } catch (error) {
     console.warn('Falling back to local stats:', error);
-    return getLocalUserStats(userId);
+    return localStats;
   }
 };
 

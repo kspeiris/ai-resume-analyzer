@@ -143,8 +143,8 @@ export default function Navbar({ onMenuClick }) {
             </MenuItem>
             <Divider />
             <Box sx={{ p: 1 }}>
-              <Button fullWidth size="small" onClick={() => navigate('/notifications')}>
-                View All
+              <Button fullWidth size="small" onClick={() => navigate('/settings')}>
+                View Notification Settings
               </Button>
             </Box>
           </Menu>
@@ -194,7 +194,7 @@ export default function Navbar({ onMenuClick }) {
               </ListItemIcon>
               History
             </MenuItem>
-            <MenuItem onClick={() => handleNavigation('/profile')}>
+            <MenuItem onClick={() => handleNavigation('/settings')}>
               <ListItemIcon>
                 <Person fontSize="small" />
               </ListItemIcon>
