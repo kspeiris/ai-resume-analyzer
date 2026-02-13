@@ -1,6 +1,5 @@
 import {
   collection,
-  addDoc,
   getDoc,
   getDocs,
   query,
@@ -8,25 +7,38 @@ import {
   orderBy,
   limit,
   doc,
-  setDoc,
   updateDoc,
   deleteDoc,
   Timestamp,
   increment,
 } from 'firebase/firestore';
-import { ref, deleteObject } from 'firebase/storage';
 
-import { db, storage } from '../firebase/config';
+import { db } from '../firebase/config';
 
-// Helper to convert File to Base64
-const fileToBase64 = (file) => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = (error) => reject(error);
-  });
+const LOCAL_RESUMES_KEY = 'resume_analyzer_local_resumes_v1';
+const LOCAL_RESUME_LIMIT = 1;
+
+const readLocalResumes = () => {
+  try {
+    const raw = localStorage.getItem(LOCAL_RESUMES_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (error) {
+    console.warn('Failed to parse local resumes:', error);
+    return [];
+  }
 };
+
+const writeLocalResumes = (resumes) => {
+  localStorage.setItem(LOCAL_RESUMES_KEY, JSON.stringify(resumes));
+};
+
+const fileToBase64 = (file) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error('Failed to read file'));
+    reader.readAsDataURL(file);
+  });
 
 // Upload resume file and metadata
 export const uploadResume = async (userId, file, extractedText) => {
@@ -34,21 +46,17 @@ export const uploadResume = async (userId, file, extractedText) => {
     if (!userId) throw new Error('User ID is required for upload');
     if (!file) throw new Error('File is required for upload');
 
-    console.log(`Starting Firestore-based resume upload for user: ${userId}`);
-
-    const base64File = await fileToBase64(file);
-    console.log('File converted successfully.');
-
-    // Create resume document in Firestore
-    console.log('Creating resume document in Firestore...');
-    const resumeData = {
+    const base64Data = await fileToBase64(file);
+    const nowIso = new Date().toISOString();
+    const localResume = {
+      id: `local_${Date.now()}`,
       userId,
       fileName: file.name,
-      fileData: base64File, // Store the actual file content here
       fileType: file.type,
       fileSize: file.size,
+      fileData: base64Data,
       extractedText: extractedText || 'No text extracted',
-      uploadedAt: Timestamp.now(),
+      uploadedAt: nowIso,
       isActive: true,
       analysesCount: 0,
       metadata: {
@@ -58,33 +66,38 @@ export const uploadResume = async (userId, file, extractedText) => {
       },
     };
 
-    const docRef = await addDoc(collection(db, 'resumes'), resumeData);
-    console.log('Resume document created in Firestore:', docRef.id);
+    const current = readLocalResumes().filter((resume) => resume.userId !== userId);
+    const next = [localResume, ...current].slice(0, LOCAL_RESUME_LIMIT);
 
-    // Update user's resume count
-    const userRef = doc(db, 'users', userId);
-    await setDoc(
-      userRef,
-      {
-        totalResumes: increment(1),
-        lastResumeUpload: Timestamp.now(),
-      },
-      { merge: true }
-    );
+    try {
+      writeLocalResumes(next);
+    } catch {
+      // Clear previous entries and retry once when storage is full.
+      writeLocalResumes([localResume]);
+    }
 
-    return {
-      id: docRef.id,
-      ...resumeData,
-    };
+    return localResume;
   } catch (error) {
-    console.error('Fatal error in uploadResume:', error);
-    throw new Error('Failed to save resume: ' + error.message);
+    console.error('Error uploading resume:', error);
+    throw new Error('Failed to upload resume: ' + error.message);
   }
 };
 
 // Get all resumes for a user
 export const getUserResumes = async (userId, limitCount = 10) => {
   try {
+    const localResumes = readLocalResumes()
+      .filter((resume) => resume.userId === userId && resume.isActive !== false)
+      .slice(0, limitCount)
+      .map((resume) => ({
+        ...resume,
+        uploadedAt: new Date(resume.uploadedAt),
+      }));
+
+    if (localResumes.length > 0) {
+      return localResumes;
+    }
+
     const q = query(
       collection(db, 'resumes'),
       where('userId', '==', userId),
@@ -114,6 +127,14 @@ export const getUserResumes = async (userId, limitCount = 10) => {
 // Get single resume by ID
 export const getResumeById = async (resumeId) => {
   try {
+    const localResume = readLocalResumes().find((resume) => resume.id === resumeId);
+    if (localResume) {
+      return {
+        ...localResume,
+        uploadedAt: new Date(localResume.uploadedAt),
+      };
+    }
+
     const docRef = doc(db, 'resumes', resumeId);
     const docSnap = await getDoc(docRef);
 
@@ -135,6 +156,14 @@ export const getResumeById = async (resumeId) => {
 // Delete resume
 export const deleteResume = async (resumeId, userId) => {
   try {
+    const localResumes = readLocalResumes();
+    const existsLocally = localResumes.some((resume) => resume.id === resumeId);
+    if (existsLocally) {
+      const next = localResumes.filter((resume) => resume.id !== resumeId);
+      writeLocalResumes(next);
+      return { success: true };
+    }
+
     // Delete from Firestore
     await deleteDoc(doc(db, 'resumes', resumeId));
 
@@ -169,6 +198,14 @@ export const updateResume = async (resumeId, updates) => {
 // Get latest resume
 export const getLatestResume = async (userId) => {
   try {
+    const localLatest = readLocalResumes().find((resume) => resume.userId === userId);
+    if (localLatest) {
+      return {
+        ...localLatest,
+        uploadedAt: new Date(localLatest.uploadedAt),
+      };
+    }
+
     const resumes = await getUserResumes(userId, 1);
     return resumes[0] || null;
   } catch (error) {

@@ -38,7 +38,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { extractText } from '../../services/documentParser';
 import { uploadResume } from '../../services/resumeService';
 
-const steps = ['Upload Resume', 'Processing', 'Extract Text', 'Complete'];
+const steps = ['Upload Resume', 'Extract Text', 'Complete'];
 
 export default function ResumeUpload() {
   const navigate = useNavigate();
@@ -50,32 +50,40 @@ export default function ResumeUpload() {
   const [error, setError] = useState(null);
   const [validationResults, setValidationResults] = useState(null);
 
-  const onDrop = useCallback(async (acceptedFiles) => {
-    const uploadedFile = acceptedFiles[0];
+  const onDrop = useCallback(
+    async (acceptedFiles) => {
+      const uploadedFile = acceptedFiles[0];
 
-    if (!uploadedFile) return;
+      if (!uploadedFile) return;
 
-    // Validate file type
-    const validTypes = [
-      'application/pdf',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    ];
-    if (!validTypes.includes(uploadedFile.type)) {
-      setError('Please upload a PDF or DOCX file');
-      return;
-    }
+      // Validate file type
+      const validTypes = [
+        'application/pdf',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      ];
+      if (!validTypes.includes(uploadedFile.type)) {
+        setError('Please upload a PDF or DOCX file');
+        return;
+      }
 
-    // Validate file size (5MB max)
-    if (uploadedFile.size > 5 * 1024 * 1024) {
-      setError('File size must be less than 5MB');
-      return;
-    }
+      // Validate file size (5MB max)
+      if (uploadedFile.size > 5 * 1024 * 1024) {
+        setError('File size must be less than 5MB');
+        return;
+      }
 
-    setFile(uploadedFile);
-    setError(null);
-    setActiveStep(1);
-    await processFile(uploadedFile);
-  }, []);
+      if (!currentUser?.uid) {
+        setError('Please sign in before uploading your resume');
+        return;
+      }
+
+      setFile(uploadedFile);
+      setError(null);
+      setActiveStep(1); // This will now be 'Extract Text'
+      await processFile(uploadedFile);
+    },
+    [currentUser]
+  );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -90,40 +98,49 @@ export default function ResumeUpload() {
     setProcessing(true);
 
     try {
-      // Step 2: Processing
+      // Step 2: Extract Text
       setActiveStep(1);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Step 3: Extract Text
-      setActiveStep(2);
+      console.log('Extracting text locally...');
       const text = await extractText(uploadedFile);
 
       // Validate extracted text
       const validation = validateResume(text);
       setValidationResults(validation);
 
-      // Step 4: Complete
-      setActiveStep(3);
+      // Step 3: Complete
+      setActiveStep(2);
 
-      // Upload to Firebase
-      console.log('Calling uploadResume with:', {
-        uid: currentUser.uid,
-        fileName: uploadedFile.name,
-        textLength: text.length,
-      });
+      // Save resume after extraction/validation
       const resumeData = await uploadResume(currentUser.uid, uploadedFile, text);
-      console.log('uploadResume returned:', resumeData);
-
       toast.success('Resume uploaded successfully!');
 
-      // Navigate to job description page after 2 seconds
+      // Auto-clear selected file quickly from UI
       setTimeout(() => {
-        navigate('/job-description', { state: { resumeId: resumeData.id, resumeText: text } });
-      }, 2000);
+        setFile(null);
+        setValidationResults(null);
+        setActiveStep(0);
+      }, 400);
+
+      // Navigate to job description page with persisted resume id
+      setTimeout(() => {
+        navigate('/job-description', {
+          state: {
+            resumeId: resumeData.id,
+            resumeText: text,
+            fileName: uploadedFile.name,
+          },
+        });
+      }, 900);
     } catch (error) {
       console.error('Error processing file:', error);
-      setError('Failed to process resume. Please try again.');
-      toast.error('Failed to process resume');
+      setError(
+        error.message || 'Failed to extract text. Please ensure the file is not a scanned image.'
+      );
+      toast.error('Processing failed');
+
+      // Auto-remove and reset quickly on failure
+      setFile(null);
+      setValidationResults(null);
       setActiveStep(0);
     } finally {
       setProcessing(false);
@@ -218,7 +235,7 @@ export default function ResumeUpload() {
                         {(file.size / 1024 / 1024).toFixed(2)} MB
                       </Typography>
 
-                      {activeStep === 3 && (
+                      {activeStep === 2 && (
                         <Chip
                           icon={<CheckCircle />}
                           label="Upload Complete"
@@ -254,8 +271,7 @@ export default function ResumeUpload() {
                 <LinearProgress />
                 <Typography variant="body2" align="center" sx={{ mt: 1 }}>
                   {activeStep === 1 && 'Processing your resume...'}
-                  {activeStep === 2 && 'Extracting text content...'}
-                  {activeStep === 3 && 'Finalizing...'}
+                  {activeStep === 2 && 'Upload complete. Redirecting...'}
                 </Typography>
               </Box>
             )}

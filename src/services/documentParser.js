@@ -61,7 +61,9 @@ async function extractPDFText(file) {
 
     if (cleaned.length === 0 && pdf.numPages > 0) {
       console.warn('Text extraction returned nothing. The PDF might be an image/scan.');
-      return 'This PDF appears to be a scanned image. Please upload a text-based PDF for detailed analysis.';
+      throw new Error(
+        'This PDF appears to be a scanned image. Please upload a text-based PDF (not a photo of a resume).'
+      );
     }
 
     return cleaned;
