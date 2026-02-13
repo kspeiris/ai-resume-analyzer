@@ -1,23 +1,66 @@
 import {
-  doc,
-  getDoc,
-  updateDoc,
-  setDoc,
-  collection,
-  query,
-  where,
-  getDocs,
-  Timestamp,
-  increment,
-} from 'firebase/firestore';
-import {
   updateEmail,
   updatePassword,
   updateProfile,
   sendEmailVerification,
   sendPasswordResetEmail,
 } from 'firebase/auth';
+
+import {
+  doc,
+  getDoc,
+  updateDoc,
+  setDoc,
+  deleteDoc,
+  Timestamp,
+  increment,
+} from 'firebase/firestore';
+
 import { db, auth } from '../firebase/config';
+
+const LOCAL_ANALYSES_KEY = 'resume_analyzer_local_analyses_v1';
+const LOCAL_RESUMES_KEY = 'resume_analyzer_local_resumes_v1';
+const LOCAL_PROFILES_KEY = 'resume_analyzer_local_profiles_v1';
+
+const readJson = (key, fallback) => {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch (_error) {
+    return fallback;
+  }
+};
+
+const getLocalUserStats = (userId) => {
+  const profiles = readJson(LOCAL_PROFILES_KEY, {});
+  const profile = profiles[userId] || {};
+  const analyses = readJson(LOCAL_ANALYSES_KEY, []).filter((a) => a.userId === userId);
+  const resumes = readJson(LOCAL_RESUMES_KEY, []).filter((r) => r.userId === userId);
+
+  const scores = analyses.map((a) => a.scores?.overall || 0);
+  const averageScore =
+    scores.length > 0
+      ? Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length)
+      : 0;
+
+  let improvementRate = 0;
+  if (scores.length >= 2) {
+    const [latest, previous] = scores;
+    improvementRate = previous ? Math.round(((latest - previous) / previous) * 100) : 0;
+  }
+
+  const resumeLimit = profile.resumeLimit || 5;
+
+  return {
+    totalAnalyses: analyses.length,
+    totalResumes: resumes.length,
+    averageScore,
+    improvementRate,
+    subscription: profile.subscription || 'free',
+    resumeLimit,
+    remainingAnalyses: Math.max(0, resumeLimit - analyses.length),
+  };
+};
 
 // Get user profile
 export const getUserProfile = async (userId) => {
@@ -149,7 +192,7 @@ export const getUserStats = async (userId) => {
     const userSnap = await getDoc(userRef);
 
     if (!userSnap.exists()) {
-      throw new Error('User not found');
+      return getLocalUserStats(userId);
     }
 
     const userData = userSnap.data();
@@ -164,8 +207,8 @@ export const getUserStats = async (userId) => {
       remainingAnalyses: (userData.resumeLimit || 5) - (userData.analysesCount || 0),
     };
   } catch (error) {
-    console.error('Error fetching user stats:', error);
-    throw error;
+    console.warn('Falling back to local stats:', error);
+    return getLocalUserStats(userId);
   }
 };
 
