@@ -106,18 +106,18 @@ export default function AnalysisResults() {
             </Button>
           }
         >
-          Analysis not found or you don't have permission to view it.
+          {"Analysis not found or you don't have permission to view it."}
         </Alert>
       </Container>
     );
   }
 
   const scoreData = [
-    { name: 'Overall', value: analysis.scores.overall, fill: '#2563eb' },
-    { name: 'Keyword', value: analysis.scores.keyword, fill: '#10b981' },
-    { name: 'Semantic', value: analysis.scores.semantic, fill: '#7c3aed' },
-    { name: 'Format', value: analysis.scores.format, fill: '#f59e0b' },
-    { name: 'Impact', value: analysis.scores.impact, fill: '#ef4444' },
+    { name: 'Overall', value: analysis.scores?.overall || 0, fill: '#2563eb' },
+    { name: 'Keyword', value: analysis.scores?.keyword || 0, fill: '#10b981' },
+    { name: 'Semantic', value: analysis.scores?.semantic || 0, fill: '#7c3aed' },
+    { name: 'Format', value: analysis.scores?.format || 0, fill: '#f59e0b' },
+    { name: 'Impact', value: analysis.scores?.impact || 0, fill: '#ef4444' },
   ];
 
   const getScoreColor = (score) => {
@@ -373,7 +373,7 @@ export default function AnalysisResults() {
                     Top Improvements
                   </Typography>
                   <List>
-                    {analysis.recommendations.improvements.slice(0, 5).map((item, index) => (
+                    {analysis.recommendations?.improvements?.slice(0, 5).map((item, index) => (
                       <ListItem key={index} alignItems="flex-start">
                         <ListItemIcon>
                           <Lightbulb color="primary" />
@@ -389,7 +389,7 @@ export default function AnalysisResults() {
                     Rewritten Bullet Points
                   </Typography>
                   <List>
-                    {analysis.recommendations.bulletRewrites.slice(0, 3).map((item, index) => (
+                    {analysis.recommendations?.bulletRewrites?.slice(0, 3).map((item, index) => (
                       <ListItem key={index} alignItems="flex-start">
                         <ListItemIcon>
                           <EmojiEvents color="secondary" />
@@ -408,7 +408,7 @@ export default function AnalysisResults() {
                     Missing Skills to Add
                   </Typography>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                    {analysis.recommendations.missingSkills.map((skill, index) => (
+                    {analysis.recommendations?.missingSkills?.map((skill, index) => (
                       <Chip key={index} label={skill} color="primary" variant="filled" />
                     ))}
                   </Box>
@@ -419,7 +419,7 @@ export default function AnalysisResults() {
                     ATS Optimization Tips
                   </Typography>
                   <List>
-                    {analysis.recommendations.tips.map((tip, index) => (
+                    {analysis.recommendations?.tips?.map((tip, index) => (
                       <ListItem key={index}>
                         <ListItemIcon>
                           <CheckCircle color="success" />

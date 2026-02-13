@@ -1,30 +1,32 @@
-import {
-  collection,
-  addDoc,
-  getDoc,
-  getDocs,
-  query,
-  where,
-  orderBy,
-  limit,
-  doc,
-  updateDoc,
-  deleteDoc,
-  Timestamp,
-  increment,
-} from 'firebase/firestore';
-import { db } from '../firebase/config';
+// Local storage keys for job descriptions
+const LOCAL_JDS_KEY = 'resume_analyzer_local_jds_v1';
+const LOCAL_JD_LIMIT = 50;
+
+const readLocalJDs = () => {
+  try {
+    const raw = localStorage.getItem(LOCAL_JDS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (error) {
+    console.warn('Failed to parse local JDs:', error);
+    return [];
+  }
+};
+
+const writeLocalJDs = (jds) => {
+  localStorage.setItem(LOCAL_JDS_KEY, JSON.stringify(jds));
+};
 
 // Save job description
 export const saveJobDescription = async (userId, title, description, company = '') => {
   try {
     const jdData = {
+      id: `jd_${Date.now()}`,
       userId,
       title,
       description,
       company,
-      createdAt: Timestamp.now(),
-      updatedAt: Timestamp.now(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
       isActive: true,
       analysesCount: 0,
       metadata: {
@@ -34,13 +36,14 @@ export const saveJobDescription = async (userId, title, description, company = '
       },
     };
 
-    const docRef = await addDoc(collection(db, 'jobDescriptions'), jdData);
+    const current = readLocalJDs();
+    const next = [jdData, ...current].slice(0, LOCAL_JD_LIMIT);
+    writeLocalJDs(next);
 
     return {
-      id: docRef.id,
       ...jdData,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: new Date(jdData.createdAt),
+      updatedAt: new Date(jdData.updatedAt),
     };
   } catch (error) {
     console.error('Error saving job description:', error);
@@ -51,25 +54,14 @@ export const saveJobDescription = async (userId, title, description, company = '
 // Get all job descriptions for user
 export const getUserJobDescriptions = async (userId, limitCount = 20) => {
   try {
-    const q = query(
-      collection(db, 'jobDescriptions'),
-      where('userId', '==', userId),
-      where('isActive', '==', true),
-      orderBy('createdAt', 'desc'),
-      limit(limitCount)
-    );
-
-    const querySnapshot = await getDocs(q);
-    const jds = [];
-
-    querySnapshot.forEach((doc) => {
-      jds.push({
-        id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt?.toDate(),
-        updatedAt: doc.data().updatedAt?.toDate(),
-      });
-    });
+    const jds = readLocalJDs()
+      .filter((jd) => jd.userId === userId && jd.isActive !== false)
+      .slice(0, limitCount)
+      .map((jd) => ({
+        ...jd,
+        createdAt: new Date(jd.createdAt),
+        updatedAt: new Date(jd.updatedAt),
+      }));
 
     return jds;
   } catch (error) {
@@ -81,15 +73,13 @@ export const getUserJobDescriptions = async (userId, limitCount = 20) => {
 // Get single job description
 export const getJobDescriptionById = async (jdId) => {
   try {
-    const docRef = doc(db, 'jobDescriptions', jdId);
-    const docSnap = await getDoc(docRef);
+    const jd = readLocalJDs().find((j) => j.id === jdId);
 
-    if (docSnap.exists()) {
+    if (jd) {
       return {
-        id: docSnap.id,
-        ...docSnap.data(),
-        createdAt: docSnap.data().createdAt?.toDate(),
-        updatedAt: docSnap.data().updatedAt?.toDate(),
+        ...jd,
+        createdAt: new Date(jd.createdAt),
+        updatedAt: new Date(jd.updatedAt),
       };
     } else {
       throw new Error('Job description not found');
@@ -103,21 +93,28 @@ export const getJobDescriptionById = async (jdId) => {
 // Update job description
 export const updateJobDescription = async (jdId, updates) => {
   try {
-    const docRef = doc(db, 'jobDescriptions', jdId);
+    const jds = readLocalJDs();
+    const index = jds.findIndex((jd) => jd.id === jdId);
+
+    if (index === -1) throw new Error('Job description not found');
+
+    const updatedJD = {
+      ...jds[index],
+      ...updates,
+      updatedAt: new Date().toISOString(),
+    };
 
     // Update extracted keywords if description changed
     if (updates.description) {
-      updates.metadata = {
+      updatedJD.metadata = {
         wordCount: updates.description.split(/\s+/).length,
         characterCount: updates.description.length,
         extractedKeywords: extractKeywords(updates.description),
       };
     }
 
-    await updateDoc(docRef, {
-      ...updates,
-      updatedAt: Timestamp.now(),
-    });
+    jds[index] = updatedJD;
+    writeLocalJDs(jds);
 
     return { success: true };
   } catch (error) {
@@ -129,7 +126,9 @@ export const updateJobDescription = async (jdId, updates) => {
 // Delete job description
 export const deleteJobDescription = async (jdId) => {
   try {
-    await deleteDoc(doc(db, 'jobDescriptions', jdId));
+    const jds = readLocalJDs();
+    const next = jds.filter((jd) => jd.id !== jdId);
+    writeLocalJDs(next);
     return { success: true };
   } catch (error) {
     console.error('Error deleting job description:', error);
@@ -140,11 +139,16 @@ export const deleteJobDescription = async (jdId) => {
 // Increment analysis count
 export const incrementJDAnalysisCount = async (jdId) => {
   try {
-    const docRef = doc(db, 'jobDescriptions', jdId);
-    await updateDoc(docRef, {
-      analysesCount: increment(1),
-      lastAnalyzedAt: Timestamp.now(),
-    });
+    const jds = readLocalJDs();
+    const index = jds.findIndex((jd) => jd.id === jdId);
+
+    if (index === -1) throw new Error('Job description not found');
+
+    jds[index].analysesCount = (jds[index].analysesCount || 0) + 1;
+    jds[index].lastAnalyzedAt = new Date().toISOString();
+    jds[index].updatedAt = new Date().toISOString();
+
+    writeLocalJDs(jds);
     return { success: true };
   } catch (error) {
     console.error('Error incrementing JD analysis count:', error);
@@ -189,6 +193,12 @@ const extractKeywords = (text) => {
     'of',
     'with',
     'by',
+    'this',
+    'that',
+    'from',
+    'your',
+    'will',
+    'with',
   ];
   const words = text
     .toLowerCase()

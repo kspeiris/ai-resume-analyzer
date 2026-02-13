@@ -1,33 +1,120 @@
-import {
-  collection,
-  addDoc,
-  getDoc,
-  getDocs,
-  query,
-  where,
-  orderBy,
-  limit,
-  doc,
-  updateDoc,
-  deleteDoc,
-  Timestamp,
-} from 'firebase/firestore';
-import { httpsCallable } from 'firebase/functions';
-import { db, functions } from '../firebase/config';
+// Local storage key for analysis results
+const LOCAL_ANALYSES_KEY = 'resume_analyzer_local_analyses_v1';
+const LOCAL_ANALYSIS_LIMIT = 50;
 
-const analyzeResumeFunction = httpsCallable(functions, 'analyzeResume');
+const readLocalAnalyses = () => {
+  try {
+    const raw = localStorage.getItem(LOCAL_ANALYSES_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (error) {
+    console.warn('Failed to parse local analyses:', error);
+    return [];
+  }
+};
+
+const writeLocalAnalyses = (analyses) => {
+  localStorage.setItem(LOCAL_ANALYSES_KEY, JSON.stringify(analyses));
+};
+
+// Local analysis logic (mocking the AI)
+const performLocalAnalysis = (resumeText, jobDescription) => {
+  const resumeWords = resumeText.toLowerCase().split(/\W+/);
+  const jdWords = jobDescription.toLowerCase().split(/\W+/);
+
+  const stopWords = new Set([
+    'the',
+    'a',
+    'an',
+    'and',
+    'or',
+    'but',
+    'in',
+    'on',
+    'at',
+    'to',
+    'for',
+    'of',
+    'with',
+    'by',
+  ]);
+
+  const jdKeywords = [...new Set(jdWords.filter((w) => w.length > 3 && !stopWords.has(w)))];
+  const matchedKeywords = jdKeywords.filter((w) => resumeWords.includes(w));
+  const missingKeywords = jdKeywords.filter((w) => !resumeWords.includes(w)).slice(0, 10);
+
+  const matchRate = jdKeywords.length > 0 ? matchedKeywords.length / jdKeywords.length : 0;
+  const overallScore = Math.min(100, Math.round(matchRate * 100 + 20)); // Base score + keyword match
+
+  return {
+    jobDescription,
+    scores: {
+      overall: overallScore,
+      keyword: Math.round(matchRate * 100),
+      semantic: Math.min(100, Math.round(matchRate * 100 + 10)),
+      format: 85,
+      impact: Math.min(100, Math.round(overallScore * 0.9)),
+    },
+    keywords: {
+      matched: matchedKeywords.slice(0, 15),
+      missing: missingKeywords,
+      matchedCount: matchedKeywords.length,
+      total: jdKeywords.length,
+    },
+    recommendations: {
+      summary:
+        'This is a locally generated analysis. To get specialized AI results, please deploy the backend functions.',
+      improvements: [
+        'Consider adding more specific keywords from the job description.',
+        'Ensure your experience sections emphasize impact over duties.',
+        'Professional summary should be tailored to this specific role.',
+      ],
+      bulletRewrites: [
+        'Collaborated with team to improve project efficiency by 20%.',
+        'Implemented new system that reduced downtime by 15 hours weekly.',
+      ],
+      missingSkills: missingKeywords.slice(0, 5),
+      tips: [
+        'Use a standard font like Arial or Calibri.',
+        'Keep your resume to 1-2 pages maximum.',
+        'Avoid images, charts, and complex columns.',
+      ],
+    },
+    sections: {
+      education: { score: 90, feedback: 'Education section is clear.' },
+      experience: {
+        score: Math.round(overallScore * 0.8),
+        feedback: 'Work experience shows good progression.',
+      },
+    },
+  };
+};
 
 // Create new analysis
 export const createAnalysis = async (userId, resumeId, resumeText, jobDescription) => {
   try {
-    const response = await analyzeResumeFunction({
-      resumeText,
-      jobDescription,
-      resumeId,
-      userId,
-    });
+    console.log('Performing local analysis...');
+    // Simulate some delay for AI feel
+    await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    return response.data;
+    const analysisResults = performLocalAnalysis(resumeText, jobDescription);
+
+    const analysisData = {
+      id: `analysis_${Date.now()}`,
+      userId,
+      resumeId,
+      ...analysisResults,
+      createdAt: new Date().toISOString(),
+      status: 'completed',
+    };
+
+    const current = readLocalAnalyses();
+    const next = [analysisData, ...current].slice(0, LOCAL_ANALYSIS_LIMIT);
+    writeLocalAnalyses(next);
+
+    return {
+      ...analysisData,
+      createdAt: new Date(analysisData.createdAt),
+    };
   } catch (error) {
     console.error('Error creating analysis:', error);
     throw new Error('Analysis failed: ' + error.message);
@@ -37,14 +124,11 @@ export const createAnalysis = async (userId, resumeId, resumeText, jobDescriptio
 // Get analysis by ID
 export const getAnalysis = async (analysisId) => {
   try {
-    const docRef = doc(db, 'analyses', analysisId);
-    const docSnap = await getDoc(docRef);
-
-    if (docSnap.exists()) {
+    const analysis = readLocalAnalyses().find((a) => a.id === analysisId);
+    if (analysis) {
       return {
-        id: docSnap.id,
-        ...docSnap.data(),
-        createdAt: docSnap.data().createdAt?.toDate(),
+        ...analysis,
+        createdAt: new Date(analysis.createdAt),
       };
     } else {
       throw new Error('Analysis not found');
@@ -56,47 +140,23 @@ export const getAnalysis = async (analysisId) => {
 };
 
 // Get user analyses with pagination
-export const getUserAnalyses = async (userId, limitCount = 10, lastDoc = null) => {
+export const getUserAnalyses = async (userId, limitCount = 10, _lastDoc = null) => {
   try {
     if (!userId) {
       throw new Error('User ID is required to fetch analyses');
     }
 
-    let q;
-
-    if (lastDoc) {
-      q = query(
-        collection(db, 'analyses'),
-        where('userId', '==', userId),
-        orderBy('createdAt', 'desc'),
-        startAfter(lastDoc),
-        limit(limitCount)
-      );
-    } else {
-      q = query(
-        collection(db, 'analyses'),
-        where('userId', '==', userId),
-        orderBy('createdAt', 'desc'),
-        limit(limitCount)
-      );
-    }
-
-    const querySnapshot = await getDocs(q);
-    const analyses = [];
-    let lastVisible = null;
-
-    querySnapshot.forEach((doc) => {
-      analyses.push({
-        id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt?.toDate(),
-      });
-      lastVisible = doc;
-    });
+    const analyses = readLocalAnalyses()
+      .filter((a) => a.userId === userId)
+      .slice(0, limitCount)
+      .map((a) => ({
+        ...a,
+        createdAt: new Date(a.createdAt),
+      }));
 
     return {
       analyses,
-      lastDoc: lastVisible,
+      lastDoc: null, // Paging not fully implemented for local storage here
       hasMore: analyses.length === limitCount,
     };
   } catch (error) {
@@ -108,7 +168,9 @@ export const getUserAnalyses = async (userId, limitCount = 10, lastDoc = null) =
 // Delete analysis
 export const deleteAnalysis = async (analysisId) => {
   try {
-    await deleteDoc(doc(db, 'analyses', analysisId));
+    const current = readLocalAnalyses();
+    const next = current.filter((a) => a.id !== analysisId);
+    writeLocalAnalyses(next);
     return { success: true };
   } catch (error) {
     console.error('Error deleting analysis:', error);
@@ -119,11 +181,14 @@ export const deleteAnalysis = async (analysisId) => {
 // Update analysis feedback
 export const updateAnalysisFeedback = async (analysisId, feedback) => {
   try {
-    const docRef = doc(db, 'analyses', analysisId);
-    await updateDoc(docRef, {
-      userFeedback: feedback,
-      feedbackSubmittedAt: Timestamp.now(),
-    });
+    const current = readLocalAnalyses();
+    const index = current.findIndex((a) => a.id === analysisId);
+    if (index === -1) throw new Error('Analysis not found');
+
+    current[index].userFeedback = feedback;
+    current[index].feedbackSubmittedAt = new Date().toISOString();
+
+    writeLocalAnalyses(current);
     return { success: true };
   } catch (error) {
     console.error('Error updating feedback:', error);
@@ -138,19 +203,7 @@ export const getAnalysisStats = async (userId) => {
       throw new Error('User ID is required to fetch analysis stats');
     }
 
-    const q = query(
-      collection(db, 'analyses'),
-      where('userId', '==', userId),
-      orderBy('createdAt', 'desc'),
-      limit(100)
-    );
-
-    const querySnapshot = await getDocs(q);
-    const analyses = [];
-
-    querySnapshot.forEach((doc) => {
-      analyses.push(doc.data());
-    });
+    const analyses = readLocalAnalyses().filter((a) => a.userId === userId);
 
     // Calculate statistics
     const stats = {
@@ -174,7 +227,7 @@ export const getAnalysisStats = async (userId) => {
       stats.scoreHistory = analyses
         .slice(0, 10)
         .map((a) => ({
-          date: a.createdAt?.toDate().toLocaleDateString(),
+          date: new Date(a.createdAt).toLocaleDateString(),
           score: a.scores?.overall || 0,
         }))
         .reverse();

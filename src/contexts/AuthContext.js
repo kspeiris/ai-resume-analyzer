@@ -1,4 +1,3 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -6,15 +5,42 @@ import {
   onAuthStateChanged,
   updateProfile,
 } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
-import { auth, db } from '../firebase/config';
+
+import React, { createContext, useContext, useState, useEffect } from 'react';
+
 import toast from 'react-hot-toast';
+
+import { auth } from '../firebase/config';
 
 const AuthContext = createContext();
 
 export function useAuth() {
   return useContext(AuthContext);
 }
+
+const LOCAL_PROFILES_KEY = 'resume_analyzer_local_profiles_v1';
+
+const getLocalProfile = (uid) => {
+  try {
+    const raw = localStorage.getItem(LOCAL_PROFILES_KEY);
+    const profiles = raw ? JSON.parse(raw) : {};
+    return profiles[uid] || null;
+  } catch (error) {
+    console.warn('Failed to parse local profiles:', error);
+    return null;
+  }
+};
+
+const saveLocalProfile = (uid, profile) => {
+  try {
+    const raw = localStorage.getItem(LOCAL_PROFILES_KEY);
+    const profiles = raw ? JSON.parse(raw) : {};
+    profiles[uid] = profile;
+    localStorage.setItem(LOCAL_PROFILES_KEY, JSON.stringify(profiles));
+  } catch (error) {
+    console.warn('Failed to save local profile:', error);
+  }
+};
 
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
@@ -26,8 +52,8 @@ export function AuthProvider({ children }) {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(userCredential.user, { displayName: name });
 
-      // Create user profile in Firestore
-      await setDoc(doc(db, 'users', userCredential.user.uid), {
+      // Create user profile in localStorage
+      const profileData = {
         name,
         email,
         createdAt: new Date().toISOString(),
@@ -38,7 +64,10 @@ export function AuthProvider({ children }) {
           emailNotifications: true,
           darkMode: false,
         },
-      });
+      };
+
+      saveLocalProfile(userCredential.user.uid, profileData);
+      setUserProfile(profileData);
 
       toast.success('Account created successfully!');
       return userCredential;
@@ -70,19 +99,22 @@ export function AuthProvider({ children }) {
     }
   }
 
-  async function fetchUserProfile(uid) {
-    const docRef = doc(db, 'users', uid);
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      setUserProfile(docSnap.data());
-    }
-  }
-
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
       if (user) {
-        await fetchUserProfile(user.uid);
+        const profile = getLocalProfile(user.uid);
+        if (profile) {
+          setUserProfile(profile);
+        } else {
+          // Fallback if profile doesn't exist locally (could happen on new device)
+          const fallbackProfile = {
+            name: user.displayName || 'User',
+            email: user.email,
+            createdAt: new Date().toISOString(),
+          };
+          setUserProfile(fallbackProfile);
+        }
       }
       setLoading(false);
     });
