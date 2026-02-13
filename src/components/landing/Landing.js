@@ -1,31 +1,33 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import {
-  Box,
-  Button,
-  Container,
-  Grid,
-  Typography,
-  Card,
-  CardContent,
-  Avatar,
-  AppBar,
-  Toolbar,
-  IconButton,
-  Stack,
-  useTheme,
-  useMediaQuery,
-} from '@mui/material';
-import {
-  AutoAwesome,
-  Security,
-  Speed,
   Analytics,
+  AutoAwesome,
+  Close,
   Download,
   Menu,
-  Close,
+  Security,
+  Speed,
 } from '@mui/icons-material';
+import {
+  AppBar,
+  Avatar,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Container,
+  Grid,
+  IconButton,
+  Stack,
+  Toolbar,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from '@mui/material';
+import { motion } from 'framer-motion';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+
+import heroPreview from '../../assets/hero.png';
 import { useAuth } from '../../contexts/AuthContext';
 
 const features = [
@@ -197,7 +199,7 @@ export default function Landing() {
             >
               <Box
                 component="img"
-                src="/dashboard-preview.png"
+                src={heroPreview}
                 alt="Dashboard Preview"
                 sx={{
                   width: '100%',

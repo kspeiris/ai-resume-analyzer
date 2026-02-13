@@ -1,4 +1,13 @@
 import {
+  Analytics,
+  Dashboard,
+  Description,
+  Help,
+  History,
+  Settings,
+  Upload,
+} from '@mui/icons-material';
+import {
   Box,
   Button,
   Divider,
@@ -13,15 +22,6 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material';
-import {
-  Analytics,
-  Dashboard,
-  Description,
-  Help,
-  History,
-  Settings,
-  Upload,
-} from '@mui/icons-material';
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
