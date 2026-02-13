@@ -6,9 +6,9 @@
 ![Firebase](https://img.shields.io/badge/Firebase-Auth--Firestore-FFCA28?style=for-the-badge&logo=firebase)
 
 > **Land your dream job with precision.** A state-of-the-art AI tool that bridges the gap between your resume and job requirements through intelligent analysis, ATS scoring, and actionable insights.
-
 ---
-
+![hero](images/hero.png)
+---
 ## ✨ Features that Make You Stand Out
 
 | Feature | Description |
@@ -21,6 +21,10 @@
 | **🔒 Local-First Security** | Your data is yours. Secure local storage with optional Firebase cloud synchronization. |
 
 ---
+## 🏗️ System Architecture
+
+![system](images/system.png)
+![system](images/Archi.png)
 
 ## 🛠️ The Tech Stack
 
@@ -30,7 +34,9 @@
 - **Backend/Auth:** [Firebase](https://firebase.google.com/) (Authentication & Firestore)
 - **Charts:** [Recharts](https://recharts.org/) for data visualization
 - **Parsing:** `pdfjs-dist` & `mammoth` for high-accuracy document extraction
-
+---
+## 📸 Screenshots
+![screenshots](images/image1.png)![screenshots](images/image2.png)![screenshots](images/image3.png)![screenshots](images/image4.png)![screenshots](images/image5.png)![screenshots](images/image6.png)![screenshots](images/image7.png)![screenshots](images/image8.png)![screenshots](images/image9.png)![screenshots](images/image10.png)![screenshots](images/image11.png)![screenshots](images/image12.png)
 ---
 
 ## 🚀 Getting Started
