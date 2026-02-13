@@ -1,16 +1,45 @@
-# React + Vite
+# AI Resume Analyzer
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A powerful web application that helps job seekers optimize their resumes for Applicant Tracking Systems (ATS) using AI technology.
 
-Currently, two official plugins are available:
+## 🚀 Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **AI-Powered Analysis**: Advanced AI algorithms analyze resumes against job descriptions
+- **ATS Compatibility Score**: Multi-factor scoring system (keyword matching, semantic similarity, formatting, impact)
+- **Smart Recommendations**: AI-generated suggestions for resume improvement
+- **Real-time Processing**: Lightning-fast analysis in under 30 seconds
+- **History Tracking**: Complete analysis history with progress tracking
+- **Secure & Private**: Enterprise-grade security with Firebase
+- **Export Reports**: Download detailed analysis reports in PDF/CSV format
+- **Responsive Design**: Works seamlessly on desktop, tablet, and mobile
 
-## React Compiler
+## 🛠️ Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Frontend
+- React 18
+- Material-UI v5
+- Framer Motion
+- Zustand (State Management)
+- React Hook Form + Yup
+- Recharts
+- React Dropzone
 
-## Expanding the ESLint configuration
+### Backend
+- Firebase (Auth, Firestore, Storage)
+- Firebase Cloud Functions
+- OpenAI GPT-4 API
+- PDF.js & Mammoth.js (Document Parsing)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 📋 Prerequisites
+
+- Node.js 18+
+- npm or yarn
+- Firebase account
+- OpenAI API key
+
+## 🔧 Installation
+
+1. **Clone the repository**
+```bash
+git clone https://github.com/yourusername/ai-resume-analyzer.git
+cd ai-resume-analyzer
