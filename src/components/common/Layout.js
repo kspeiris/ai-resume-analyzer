@@ -18,7 +18,7 @@ export default function Layout() {
   };
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
       <Sidebar open={sidebarOpen} onClose={toggleSidebar} />
 
       <Box
@@ -49,7 +49,14 @@ export default function Layout() {
             transition={{ duration: 0.3 }}
             style={{ flex: 1 }}
           >
-            <Box sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
+            <Box
+              sx={{
+                p: { xs: 2, sm: 3, md: 4 },
+                maxWidth: 1440,
+                mx: 'auto',
+                width: '100%',
+              }}
+            >
               <Outlet />
             </Box>
           </motion.div>

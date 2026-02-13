@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   Box,
   Container,
@@ -10,6 +9,7 @@ import {
   useTheme,
 } from '@mui/material';
 import { GitHub, LinkedIn, Twitter, Facebook } from '@mui/icons-material';
+import React from 'react';
 
 export default function Footer() {
   const theme = useTheme();
@@ -22,7 +22,9 @@ export default function Footer() {
         py: 3,
         px: 2,
         mt: 'auto',
-        backgroundColor: theme.palette.background.paper,
+        backgroundColor:
+          theme.palette.mode === 'light' ? 'rgba(255, 255, 255, 0.82)' : 'rgba(15, 23, 42, 0.86)',
+        backdropFilter: 'blur(10px)',
         borderTop: `1px solid ${theme.palette.divider}`,
       }}
     >
@@ -116,7 +118,7 @@ export default function Footer() {
         <Divider sx={{ my: 2 }} />
 
         <Typography variant="body2" color="text.secondary" align="center">
-          © {currentYear} AI Resume Analyzer. All rights reserved.
+          Copyright {currentYear} AI Resume Analyzer. All rights reserved.
         </Typography>
       </Container>
     </Box>

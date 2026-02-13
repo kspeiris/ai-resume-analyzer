@@ -171,6 +171,10 @@ export default function Sidebar({ open, onClose }) {
               boxSizing: 'border-box',
               width: 240,
               borderRight: 'none',
+              backgroundImage:
+                theme.palette.mode === 'light'
+                  ? 'linear-gradient(180deg, rgba(255,255,255,0.92), rgba(248,250,252,0.94))'
+                  : 'linear-gradient(180deg, rgba(17,24,39,0.98), rgba(15,23,42,0.98))',
             },
           }}
         >
@@ -184,7 +188,11 @@ export default function Sidebar({ open, onClose }) {
               boxSizing: 'border-box',
               width: 240,
               borderRight: `1px solid ${theme.palette.divider}`,
-              backgroundColor: theme.palette.background.default,
+              backgroundImage:
+                theme.palette.mode === 'light'
+                  ? 'linear-gradient(180deg, rgba(255,255,255,0.92), rgba(248,250,252,0.94))'
+                  : 'linear-gradient(180deg, rgba(17,24,39,0.98), rgba(15,23,42,0.98))',
+              backdropFilter: 'blur(8px)',
             },
           }}
           open

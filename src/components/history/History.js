@@ -180,37 +180,46 @@ export default function History() {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
+    <Container maxWidth="lg" sx={{ py: 2 }}>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
         {/* Header */}
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-          <Box>
-            <Typography variant="h4" gutterBottom sx={{ fontWeight: 700 }}>
-              Analysis History
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
-              View and manage your past resume analyses
-            </Typography>
-          </Box>
-          <Box sx={{ display: 'flex', gap: 2 }}>
-            <Button
-              variant="outlined"
-              startIcon={<Download />}
-              onClick={handleExport}
-              disabled={analyses.length === 0}
-            >
-              Export
-            </Button>
-            <Button variant="contained" startIcon={<Refresh />} onClick={fetchAnalyses}>
-              Refresh
-            </Button>
-          </Box>
-        </Box>
-
+        <Card sx={{ mb: 3 }}>
+          <CardContent
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: { xs: 'flex-start', md: 'center' },
+              flexWrap: 'wrap',
+              gap: 2,
+            }}
+          >
+            <Box>
+              <Typography variant="h4" gutterBottom sx={{ fontWeight: 800 }}>
+                Analysis History
+              </Typography>
+              <Typography variant="body1" color="text.secondary">
+                View and manage your past resume analyses
+              </Typography>
+            </Box>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <Button
+                variant="outlined"
+                startIcon={<Download />}
+                onClick={handleExport}
+                disabled={analyses.length === 0}
+              >
+                Export
+              </Button>
+              <Button variant="contained" startIcon={<Refresh />} onClick={fetchAnalyses}>
+                Refresh
+              </Button>
+            </Box>
+          </CardContent>
+        </Card>
         {/* Stats Cards */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
           <Grid item xs={12} sm={6} md={3}>

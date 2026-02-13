@@ -490,11 +490,13 @@ export default function AnalysisResults() {
         </Paper>
 
         {/* Next Steps */}
-        <Card sx={{ bgcolor: 'primary.main', color: 'white' }}>
+        <Card
+          sx={{ bgcolor: 'primary.main', color: 'primary.contrastText', backgroundImage: 'none' }}
+        >
           <CardContent sx={{ p: 4 }}>
             <Grid container spacing={3} alignItems="center">
               <Grid item xs={12} md={8}>
-                <Typography variant="h5" gutterBottom sx={{ color: 'white' }}>
+                <Typography variant="h5" gutterBottom sx={{ color: 'primary.contrastText' }}>
                   Ready to improve your resume?
                 </Typography>
                 <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.9)' }}>

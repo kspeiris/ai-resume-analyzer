@@ -114,32 +114,41 @@ export default function Dashboard() {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
+    <Container maxWidth="lg" sx={{ py: 2 }}>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
         {/* Welcome Section */}
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-          <Box>
-            <Typography variant="h4" gutterBottom sx={{ fontWeight: 700 }}>
-              Welcome back, {userProfile?.name || currentUser?.displayName}!
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
-              Here's an overview of your resume analysis activity
-            </Typography>
-          </Box>
-          <Button
-            variant="contained"
-            size="large"
-            startIcon={<Add />}
-            onClick={() => navigate('/upload')}
+        <Card sx={{ mb: 3 }}>
+          <CardContent
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: { xs: 'flex-start', md: 'center' },
+              gap: 2,
+              flexWrap: 'wrap',
+            }}
           >
-            New Analysis
-          </Button>
-        </Box>
-
+            <Box>
+              <Typography variant="h4" gutterBottom sx={{ fontWeight: 800 }}>
+                Welcome back, {userProfile?.name || currentUser?.displayName || 'there'}!
+              </Typography>
+              <Typography variant="body1" color="text.secondary">
+                Here's an overview of your resume analysis activity
+              </Typography>
+            </Box>
+            <Button
+              variant="contained"
+              size="large"
+              startIcon={<Add />}
+              onClick={() => navigate('/upload')}
+            >
+              New Analysis
+            </Button>
+          </CardContent>
+        </Card>
         {/* Stats Cards */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
           {statsCards.map((stat, index) => (
@@ -149,7 +158,7 @@ export default function Dashboard() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Card>
+                <Card sx={{ height: '100%' }}>
                   <CardContent>
                     <Box
                       sx={{
@@ -180,7 +189,7 @@ export default function Dashboard() {
         {/* Progress Chart and Quick Actions */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
           <Grid item xs={12} md={8}>
-            <Card>
+            <Card sx={{ height: '100%' }}>
               <CardContent>
                 <Typography variant="h6" gutterBottom>
                   Score Progression

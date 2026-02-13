@@ -81,7 +81,12 @@ export default function Landing() {
         position="fixed"
         color="transparent"
         elevation={0}
-        sx={{ backdropFilter: 'blur(20px)', background: 'rgba(255,255,255,0.9)' }}
+        sx={{
+          backdropFilter: 'blur(20px)',
+          background:
+            theme.palette.mode === 'light' ? 'rgba(255,255,255,0.86)' : 'rgba(15,23,42,0.82)',
+          borderBottom: `1px solid ${theme.palette.divider}`,
+        }}
       >
         <Container maxWidth="lg">
           <Toolbar disableGutters>
@@ -205,7 +210,8 @@ export default function Landing() {
                   width: '100%',
                   height: 'auto',
                   borderRadius: 4,
-                  boxShadow: 3,
+                  border: `1px solid ${theme.palette.divider}`,
+                  boxShadow: theme.shadows[4],
                 }}
               />
             </motion.div>
@@ -322,15 +328,22 @@ export default function Landing() {
 
       {/* CTA Section */}
       <Container maxWidth="lg" sx={{ py: { xs: 8, md: 16 } }}>
-        <Card sx={{ bgcolor: 'primary.main', color: 'white', p: { xs: 4, md: 8 } }}>
+        <Card
+          sx={{
+            bgcolor: 'primary.main',
+            color: 'primary.contrastText',
+            backgroundImage: 'none',
+            p: { xs: 4, md: 8 },
+          }}
+        >
           <Grid container spacing={4} alignItems="center" justifyContent="center">
             <Grid item xs={12} md={8} sx={{ textAlign: 'center' }}>
-              <Typography variant="h3" sx={{ color: 'white', mb: 2 }}>
+              <Typography variant="h3" sx={{ color: 'primary.contrastText', mb: 2 }}>
                 Ready to Optimize Your Resume?
               </Typography>
               <Typography
                 variant="h6"
-                sx={{ color: 'rgba(255,255,255,0.9)', mb: 4, fontWeight: 400 }}
+                sx={{ color: 'rgba(255,255,255,0.92)', mb: 4, fontWeight: 500 }}
               >
                 Join thousands of job seekers who have successfully improved their resumes with our
                 AI analyzer.
@@ -357,7 +370,13 @@ export default function Landing() {
       </Container>
 
       {/* Footer */}
-      <Box sx={{ bgcolor: 'grey.900', color: 'white', py: 6 }}>
+      <Box
+        sx={{
+          bgcolor: theme.palette.mode === 'light' ? 'grey.900' : '#020617',
+          color: 'white',
+          py: 6,
+        }}
+      >
         <Container maxWidth="lg">
           <Grid container spacing={4}>
             <Grid item xs={12} md={4}>
@@ -415,7 +434,7 @@ export default function Landing() {
             }}
           >
             <Typography color="grey.500">
-              © {new Date().getFullYear()} AI Resume Analyzer. All rights reserved.
+              Copyright {new Date().getFullYear()} AI Resume Analyzer. All rights reserved.
             </Typography>
           </Box>
         </Container>

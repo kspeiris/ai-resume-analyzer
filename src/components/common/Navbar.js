@@ -72,12 +72,14 @@ export default function Navbar({ onMenuClick }) {
       position="sticky"
       elevation={0}
       sx={{
-        backgroundColor: theme.palette.background.paper,
+        backgroundColor:
+          theme.palette.mode === 'light' ? 'rgba(255, 255, 255, 0.82)' : 'rgba(15, 23, 42, 0.86)',
+        backdropFilter: 'blur(14px)',
         borderBottom: `1px solid ${theme.palette.divider}`,
         color: theme.palette.text.primary,
       }}
     >
-      <Toolbar>
+      <Toolbar sx={{ minHeight: 72 }}>
         <IconButton
           color="inherit"
           aria-label="open drawer"
