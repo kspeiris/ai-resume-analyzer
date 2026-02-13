@@ -1,10 +1,10 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { 
-  createUserWithEmailAndPassword, 
+import {
+  createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
-  updateProfile
+  updateProfile,
 } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase/config';
@@ -25,7 +25,7 @@ export function AuthProvider({ children }) {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(userCredential.user, { displayName: name });
-      
+
       // Create user profile in Firestore
       await setDoc(doc(db, 'users', userCredential.user.uid), {
         name,
@@ -36,10 +36,10 @@ export function AuthProvider({ children }) {
         resumeLimit: 5,
         settings: {
           emailNotifications: true,
-          darkMode: false
-        }
+          darkMode: false,
+        },
       });
-      
+
       toast.success('Account created successfully!');
       return userCredential;
     } catch (error) {
@@ -96,12 +96,8 @@ export function AuthProvider({ children }) {
     signup,
     login,
     logout,
-    loading
+    loading,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {!loading && children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;
 }

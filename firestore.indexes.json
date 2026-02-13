@@ -9,6 +9,10 @@
           "order": "ASCENDING"
         },
         {
+          "fieldPath": "isActive",
+          "order": "ASCENDING"
+        },
+        {
           "fieldPath": "uploadedAt",
           "order": "DESCENDING"
         }
@@ -32,6 +36,10 @@
       "collectionGroup": "jobDescriptions",
       "queryScope": "COLLECTION",
       "fields": [
+        {
+          "fieldPath": "isActive",
+          "order": "ASCENDING"
+        },
         {
           "fieldPath": "userId",
           "order": "ASCENDING"

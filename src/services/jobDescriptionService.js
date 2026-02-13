@@ -10,7 +10,7 @@ import {
   doc,
   updateDoc,
   deleteDoc,
-  Timestamp
+  Timestamp,
 } from 'firebase/firestore';
 import { db } from '../firebase/config';
 
@@ -29,17 +29,17 @@ export const saveJobDescription = async (userId, title, description, company = '
       metadata: {
         wordCount: description.split(/\s+/).length,
         characterCount: description.length,
-        extractedKeywords: extractKeywords(description)
-      }
+        extractedKeywords: extractKeywords(description),
+      },
     };
 
     const docRef = await addDoc(collection(db, 'jobDescriptions'), jdData);
-    
+
     return {
       id: docRef.id,
       ...jdData,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     };
   } catch (error) {
     console.error('Error saving job description:', error);
@@ -60,13 +60,13 @@ export const getUserJobDescriptions = async (userId, limitCount = 20) => {
 
     const querySnapshot = await getDocs(q);
     const jds = [];
-    
+
     querySnapshot.forEach((doc) => {
       jds.push({
         id: doc.id,
         ...doc.data(),
         createdAt: doc.data().createdAt?.toDate(),
-        updatedAt: doc.data().updatedAt?.toDate()
+        updatedAt: doc.data().updatedAt?.toDate(),
       });
     });
 
@@ -82,13 +82,13 @@ export const getJobDescriptionById = async (jdId) => {
   try {
     const docRef = doc(db, 'jobDescriptions', jdId);
     const docSnap = await getDoc(docRef);
-    
+
     if (docSnap.exists()) {
       return {
         id: docSnap.id,
         ...docSnap.data(),
         createdAt: docSnap.data().createdAt?.toDate(),
-        updatedAt: docSnap.data().updatedAt?.toDate()
+        updatedAt: docSnap.data().updatedAt?.toDate(),
       };
     } else {
       throw new Error('Job description not found');
@@ -103,21 +103,21 @@ export const getJobDescriptionById = async (jdId) => {
 export const updateJobDescription = async (jdId, updates) => {
   try {
     const docRef = doc(db, 'jobDescriptions', jdId);
-    
+
     // Update extracted keywords if description changed
     if (updates.description) {
       updates.metadata = {
         wordCount: updates.description.split(/\s+/).length,
         characterCount: updates.description.length,
-        extractedKeywords: extractKeywords(updates.description)
+        extractedKeywords: extractKeywords(updates.description),
       };
     }
 
     await updateDoc(docRef, {
       ...updates,
-      updatedAt: Timestamp.now()
+      updatedAt: Timestamp.now(),
     });
-    
+
     return { success: true };
   } catch (error) {
     console.error('Error updating job description:', error);
@@ -142,7 +142,7 @@ export const incrementJDAnalysisCount = async (jdId) => {
     const docRef = doc(db, 'jobDescriptions', jdId);
     await updateDoc(docRef, {
       analysesCount: increment(1),
-      lastAnalyzedAt: Timestamp.now()
+      lastAnalyzedAt: Timestamp.now(),
     });
     return { success: true };
   } catch (error) {
@@ -155,14 +155,15 @@ export const incrementJDAnalysisCount = async (jdId) => {
 export const searchJobDescriptions = async (userId, searchTerm) => {
   try {
     const jds = await getUserJobDescriptions(userId, 100);
-    
+
     // Client-side search since Firestore doesn't support full-text search
-    const results = jds.filter(jd => 
-      jd.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      jd.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (jd.company && jd.company.toLowerCase().includes(searchTerm.toLowerCase()))
+    const results = jds.filter(
+      (jd) =>
+        jd.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        jd.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (jd.company && jd.company.toLowerCase().includes(searchTerm.toLowerCase()))
     );
-    
+
     return results.slice(0, 20);
   } catch (error) {
     console.error('Error searching job descriptions:', error);
@@ -172,18 +173,30 @@ export const searchJobDescriptions = async (userId, searchTerm) => {
 
 // Extract keywords from text
 const extractKeywords = (text) => {
-  const stopWords = ['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by'];
-  const words = text.toLowerCase()
+  const stopWords = [
+    'the',
+    'a',
+    'an',
+    'and',
+    'or',
+    'but',
+    'in',
+    'on',
+    'at',
+    'to',
+    'for',
+    'of',
+    'with',
+    'by',
+  ];
+  const words = text
+    .toLowerCase()
     .replace(/[^\w\s]/g, ' ')
     .split(/\s+/)
-    .filter(word => 
-      word.length > 3 && 
-      !stopWords.includes(word) &&
-      isNaN(word)
-    );
-  
+    .filter((word) => word.length > 3 && !stopWords.includes(word) && isNaN(word));
+
   const keywordCount = {};
-  words.forEach(word => {
+  words.forEach((word) => {
     keywordCount[word] = (keywordCount[word] || 0) + 1;
   });
 

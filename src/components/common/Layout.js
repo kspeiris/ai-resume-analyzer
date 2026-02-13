@@ -31,10 +31,11 @@ export default function Layout() {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.leavingScreen,
           }),
-          ...(sidebarOpen && !isMobile && {
-            marginLeft: '240px',
-            width: `calc(100% - 240px)`,
-          }),
+          ...(sidebarOpen &&
+            !isMobile && {
+              marginLeft: '240px',
+              width: `calc(100% - 240px)`,
+            }),
         }}
       >
         <Navbar onMenuClick={toggleSidebar} />

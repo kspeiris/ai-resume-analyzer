@@ -1,33 +1,40 @@
-import React, { useState, useEffect } from 'react';
 import {
-  Container,
-  Grid,
-  Paper,
-  Typography,
+  CheckCircle,
+  RadioButtonUnchecked,
+  RemoveCircle,
+  TrendingDown,
+  TrendingUp,
+  Warning,
+} from '@mui/icons-material';
+import {
+  Alert,
   Box,
+  Button,
   Card,
   CardContent,
   Chip,
+  Container,
+  Divider,
+  Grid,
+  LinearProgress,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Paper,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableRow,
-  Button,
-  Divider,
-  LinearProgress
+  Typography,
 } from '@mui/material';
-import {
-  TrendingUp,
-  TrendingDown,
-  RemoveCircle,
-  CheckCircle,
-  Warning
-} from '@mui/icons-material';
 import { motion } from 'framer-motion';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import { useAuth } from '../../contexts/AuthContext';
 import { compareAnalyses } from '../../services/analysisService';
-import { useNavigate } from 'react-router-dom';
 
 export default function CompareAnalysis() {
   const navigate = useNavigate();
@@ -44,7 +51,7 @@ export default function CompareAnalysis() {
     try {
       setLoading(true);
       const compareList = JSON.parse(localStorage.getItem('compareAnalyses') || '[]');
-      
+
       if (compareList.length < 2) {
         navigate('/history');
         return;
@@ -52,7 +59,7 @@ export default function CompareAnalysis() {
 
       const result = await compareAnalyses(compareList[0], compareList[1]);
       setComparison(result);
-      
+
       // Clear comparison list
       localStorage.removeItem('compareAnalyses');
     } catch (error) {
@@ -116,10 +123,11 @@ export default function CompareAnalysis() {
                 Overall Progress
               </Typography>
               <Typography variant="h2" sx={{ fontWeight: 700, color: 'white' }}>
-                {differences.scoreChange > 0 ? '+' : ''}{differences.scoreChange}%
+                {differences.scoreChange > 0 ? '+' : ''}
+                {differences.scoreChange}%
               </Typography>
               <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.9)' }}>
-                {differences.scoreChange > 0 
+                {differences.scoreChange > 0
                   ? 'Your resume has improved! Keep up the good work.'
                   : 'Your score decreased. Review the recommendations below.'}
               </Typography>
@@ -147,24 +155,42 @@ export default function CompareAnalysis() {
                       <TableRow>
                         <TableCell>ATS Score</TableCell>
                         <TableCell align="center">
-                          <Chip 
+                          <Chip
                             label={`${first.scores.overall}%`}
-                            color={first.scores.overall >= 80 ? 'success' : first.scores.overall >= 60 ? 'warning' : 'error'}
+                            color={
+                              first.scores.overall >= 80
+                                ? 'success'
+                                : first.scores.overall >= 60
+                                  ? 'warning'
+                                  : 'error'
+                            }
                           />
                         </TableCell>
                         <TableCell align="center">
-                          <Chip 
+                          <Chip
                             label={`${second.scores.overall}%`}
-                            color={second.scores.overall >= 80 ? 'success' : second.scores.overall >= 60 ? 'warning' : 'error'}
+                            color={
+                              second.scores.overall >= 80
+                                ? 'success'
+                                : second.scores.overall >= 60
+                                  ? 'warning'
+                                  : 'error'
+                            }
                           />
                         </TableCell>
                         <TableCell align="center">
-                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <Box
+                            sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                          >
                             {getScoreDifferenceIcon(differences.scoreChange)}
-                            <Typography 
-                              sx={{ ml: 1, color: getScoreDifferenceColor(differences.scoreChange) }}
+                            <Typography
+                              sx={{
+                                ml: 1,
+                                color: getScoreDifferenceColor(differences.scoreChange),
+                              }}
                             >
-                              {differences.scoreChange > 0 ? '+' : ''}{differences.scoreChange}%
+                              {differences.scoreChange > 0 ? '+' : ''}
+                              {differences.scoreChange}%
                             </Typography>
                           </Box>
                         </TableCell>
@@ -174,10 +200,18 @@ export default function CompareAnalysis() {
                         <TableCell align="center">{first.scores.keyword}%</TableCell>
                         <TableCell align="center">{second.scores.keyword}%</TableCell>
                         <TableCell align="center">
-                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <Box
+                            sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                          >
                             {getScoreDifferenceIcon(differences.keywordImprovement)}
-                            <Typography sx={{ ml: 1, color: getScoreDifferenceColor(differences.keywordImprovement) }}>
-                              {differences.keywordImprovement > 0 ? '+' : ''}{differences.keywordImprovement}
+                            <Typography
+                              sx={{
+                                ml: 1,
+                                color: getScoreDifferenceColor(differences.keywordImprovement),
+                              }}
+                            >
+                              {differences.keywordImprovement > 0 ? '+' : ''}
+                              {differences.keywordImprovement}
                             </Typography>
                           </Box>
                         </TableCell>
@@ -187,10 +221,18 @@ export default function CompareAnalysis() {
                         <TableCell align="center">{first.scores.format}%</TableCell>
                         <TableCell align="center">{second.scores.format}%</TableCell>
                         <TableCell align="center">
-                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <Box
+                            sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                          >
                             {getScoreDifferenceIcon(differences.formatImprovement)}
-                            <Typography sx={{ ml: 1, color: getScoreDifferenceColor(differences.formatImprovement) }}>
-                              {differences.formatImprovement > 0 ? '+' : ''}{differences.formatImprovement}%
+                            <Typography
+                              sx={{
+                                ml: 1,
+                                color: getScoreDifferenceColor(differences.formatImprovement),
+                              }}
+                            >
+                              {differences.formatImprovement > 0 ? '+' : ''}
+                              {differences.formatImprovement}%
                             </Typography>
                           </Box>
                         </TableCell>
@@ -200,10 +242,18 @@ export default function CompareAnalysis() {
                         <TableCell align="center">{first.scores.impact}%</TableCell>
                         <TableCell align="center">{second.scores.impact}%</TableCell>
                         <TableCell align="center">
-                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <Box
+                            sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                          >
                             {getScoreDifferenceIcon(differences.impactImprovement)}
-                            <Typography sx={{ ml: 1, color: getScoreDifferenceColor(differences.impactImprovement) }}>
-                              {differences.impactImprovement > 0 ? '+' : ''}{differences.impactImprovement}%
+                            <Typography
+                              sx={{
+                                ml: 1,
+                                color: getScoreDifferenceColor(differences.impactImprovement),
+                              }}
+                            >
+                              {differences.impactImprovement > 0 ? '+' : ''}
+                              {differences.impactImprovement}%
                             </Typography>
                           </Box>
                         </TableCell>
@@ -224,7 +274,7 @@ export default function CompareAnalysis() {
                 </Typography>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, minHeight: 100 }}>
                   {second.keywords.matched
-                    .filter(k => !first.keywords.matched.includes(k))
+                    .filter((k) => !first.keywords.matched.includes(k))
                     .map((keyword, i) => (
                       <Chip
                         key={i}
@@ -234,7 +284,8 @@ export default function CompareAnalysis() {
                         icon={<CheckCircle />}
                       />
                     ))}
-                  {second.keywords.matched.filter(k => !first.keywords.matched.includes(k)).length === 0 && (
+                  {second.keywords.matched.filter((k) => !first.keywords.matched.includes(k))
+                    .length === 0 && (
                     <Typography color="text.secondary" sx={{ py: 2 }}>
                       No new keywords added
                     </Typography>
@@ -253,7 +304,10 @@ export default function CompareAnalysis() {
                 </Typography>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, minHeight: 100 }}>
                   {second.keywords.missing
-                    .filter(k => !first.keywords.missing.includes(k) || first.keywords.matched.includes(k))
+                    .filter(
+                      (k) =>
+                        !first.keywords.missing.includes(k) || first.keywords.matched.includes(k)
+                    )
                     .map((keyword, i) => (
                       <Chip
                         key={i}
@@ -296,7 +350,7 @@ export default function CompareAnalysis() {
                           primary={rec}
                           secondary={isCompleted ? 'Completed' : 'Not yet addressed'}
                           secondaryTypographyProps={{
-                            color: isCompleted ? 'success.main' : 'text.secondary'
+                            color: isCompleted ? 'success.main' : 'text.secondary',
                           }}
                         />
                       </ListItem>
@@ -309,22 +363,13 @@ export default function CompareAnalysis() {
         </Grid>
 
         <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 4 }}>
-          <Button
-            variant="outlined"
-            onClick={() => navigate(`/analysis/${first.id}`)}
-          >
+          <Button variant="outlined" onClick={() => navigate(`/analysis/${first.id}`)}>
             View First Analysis
           </Button>
-          <Button
-            variant="outlined"
-            onClick={() => navigate(`/analysis/${second.id}`)}
-          >
+          <Button variant="outlined" onClick={() => navigate(`/analysis/${second.id}`)}>
             View Latest Analysis
           </Button>
-          <Button
-            variant="contained"
-            onClick={() => navigate('/upload')}
-          >
+          <Button variant="contained" onClick={() => navigate('/upload')}>
             New Analysis
           </Button>
         </Box>

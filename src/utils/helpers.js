@@ -5,20 +5,20 @@ export const formatDate = (date, format = 'MMM DD, YYYY') => {
     'MMM DD, YYYY': { month: 'short', day: 'numeric', year: 'numeric' },
     'MMMM DD, YYYY': { month: 'long', day: 'numeric', year: 'numeric' },
     'DD/MM/YYYY': { day: 'numeric', month: 'numeric', year: 'numeric' },
-    'YYYY-MM-DD': { year: 'numeric', month: 'numeric', day: 'numeric' }
+    'YYYY-MM-DD': { year: 'numeric', month: 'numeric', day: 'numeric' },
   };
-  
+
   return d.toLocaleDateString('en-US', options[format] || options['MMM DD, YYYY']);
 };
 
 // Format file size
 export const formatFileSize = (bytes) => {
   if (bytes === 0) return '0 Bytes';
-  
+
   const k = 1024;
   const sizes = ['Bytes', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  
+
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 };
 
@@ -49,11 +49,11 @@ export const debounce = (func, wait) => {
 // Throttle function
 export const throttle = (func, limit) => {
   let inThrottle;
-  return function(...args) {
+  return function (...args) {
     if (!inThrottle) {
       func.apply(this, args);
       inThrottle = true;
-      setTimeout(() => inThrottle = false, limit);
+      setTimeout(() => (inThrottle = false), limit);
     }
   };
 };
@@ -146,22 +146,38 @@ export const parseResumeSections = (text) => {
     projects: '',
     certifications: '',
     languages: '',
-    other: ''
+    other: '',
   };
 
   const lines = text.split('\n');
   let currentSection = 'other';
 
-  lines.forEach(line => {
+  lines.forEach((line) => {
     const lowerLine = line.toLowerCase();
-    
-    if (lowerLine.includes('summary') || lowerLine.includes('profile') || lowerLine.includes('objective')) {
+
+    if (
+      lowerLine.includes('summary') ||
+      lowerLine.includes('profile') ||
+      lowerLine.includes('objective')
+    ) {
       currentSection = 'summary';
-    } else if (lowerLine.includes('experience') || lowerLine.includes('work history') || lowerLine.includes('employment')) {
+    } else if (
+      lowerLine.includes('experience') ||
+      lowerLine.includes('work history') ||
+      lowerLine.includes('employment')
+    ) {
       currentSection = 'experience';
-    } else if (lowerLine.includes('education') || lowerLine.includes('degree') || lowerLine.includes('university')) {
+    } else if (
+      lowerLine.includes('education') ||
+      lowerLine.includes('degree') ||
+      lowerLine.includes('university')
+    ) {
       currentSection = 'education';
-    } else if (lowerLine.includes('skill') || lowerLine.includes('technolog') || lowerLine.includes('competenc')) {
+    } else if (
+      lowerLine.includes('skill') ||
+      lowerLine.includes('technolog') ||
+      lowerLine.includes('competenc')
+    ) {
       currentSection = 'skills';
     } else if (lowerLine.includes('project')) {
       currentSection = 'projects';
@@ -170,7 +186,7 @@ export const parseResumeSections = (text) => {
     } else if (lowerLine.includes('language')) {
       currentSection = 'languages';
     }
-    
+
     sections[currentSection] += line + '\n';
   });
 

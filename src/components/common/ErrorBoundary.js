@@ -16,7 +16,7 @@ class ErrorBoundary extends React.Component {
   componentDidCatch(error, errorInfo) {
     this.setState({
       error: error,
-      errorInfo: errorInfo
+      errorInfo: errorInfo,
     });
 
     // Log error to analytics
@@ -38,7 +38,7 @@ class ErrorBoundary extends React.Component {
             alignItems: 'center',
             justifyContent: 'center',
             minHeight: '100vh',
-            p: 3
+            p: 3,
           }}
         >
           <Paper
@@ -47,25 +47,26 @@ class ErrorBoundary extends React.Component {
               p: 4,
               maxWidth: 500,
               textAlign: 'center',
-              borderRadius: 2
+              borderRadius: 2,
             }}
           >
-            <ErrorOutline 
-              sx={{ 
-                fontSize: 64, 
+            <ErrorOutline
+              sx={{
+                fontSize: 64,
                 color: 'error.main',
-                mb: 2
-              }} 
+                mb: 2,
+              }}
             />
-            
+
             <Typography variant="h5" gutterBottom>
               Oops! Something went wrong
             </Typography>
-            
+
             <Typography color="text.secondary" paragraph>
-              We're sorry for the inconvenience. Please try refreshing the page or contact support if the problem persists.
+              We're sorry for the inconvenience. Please try refreshing the page or contact support
+              if the problem persists.
             </Typography>
-            
+
             <Button
               variant="contained"
               startIcon={<Refresh />}

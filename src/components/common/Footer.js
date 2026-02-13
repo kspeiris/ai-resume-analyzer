@@ -7,14 +7,9 @@ import {
   Link,
   IconButton,
   Divider,
-  useTheme
+  useTheme,
 } from '@mui/material';
-import {
-  GitHub,
-  LinkedIn,
-  Twitter,
-  Facebook
-} from '@mui/icons-material';
+import { GitHub, LinkedIn, Twitter, Facebook } from '@mui/icons-material';
 
 export default function Footer() {
   const theme = useTheme();
@@ -28,7 +23,7 @@ export default function Footer() {
         px: 2,
         mt: 'auto',
         backgroundColor: theme.palette.background.paper,
-        borderTop: `1px solid ${theme.palette.divider}`
+        borderTop: `1px solid ${theme.palette.divider}`,
       }}
     >
       <Container maxWidth="lg">
@@ -38,7 +33,8 @@ export default function Footer() {
               AI Resume Analyzer
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Empowering job seekers with AI technology to optimize their resumes and land their dream jobs.
+              Empowering job seekers with AI technology to optimize their resumes and land their
+              dream jobs.
             </Typography>
             <Box sx={{ mt: 2 }}>
               <IconButton size="small" color="inherit" href="https://github.com" target="_blank">
@@ -55,7 +51,7 @@ export default function Footer() {
               </IconButton>
             </Box>
           </Grid>
-          
+
           <Grid item xs={12} md={2}>
             <Typography variant="subtitle2" color="text.primary" gutterBottom>
               Product
@@ -70,7 +66,7 @@ export default function Footer() {
               API
             </Link>
           </Grid>
-          
+
           <Grid item xs={12} md={2}>
             <Typography variant="subtitle2" color="text.primary" gutterBottom>
               Company
@@ -85,7 +81,7 @@ export default function Footer() {
               Careers
             </Link>
           </Grid>
-          
+
           <Grid item xs={12} md={2}>
             <Typography variant="subtitle2" color="text.primary" gutterBottom>
               Resources
@@ -100,7 +96,7 @@ export default function Footer() {
               Contact
             </Link>
           </Grid>
-          
+
           <Grid item xs={12} md={2}>
             <Typography variant="subtitle2" color="text.primary" gutterBottom>
               Legal
@@ -116,9 +112,9 @@ export default function Footer() {
             </Link>
           </Grid>
         </Grid>
-        
+
         <Divider sx={{ my: 2 }} />
-        
+
         <Typography variant="body2" color="text.secondary" align="center">
           © {currentYear} AI Resume Analyzer. All rights reserved.
         </Typography>

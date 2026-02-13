@@ -9,7 +9,7 @@ import {
   Button,
   Link,
   Alert,
-  InputAdornment
+  InputAdornment,
 } from '@mui/material';
 import { Email, ArrowBack } from '@mui/icons-material';
 import { motion } from 'framer-motion';
@@ -24,7 +24,7 @@ export default function ForgotPassword() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!email) {
       setError('Please enter your email address');
       return;
@@ -56,7 +56,7 @@ export default function ForgotPassword() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            py: 4
+            py: 4,
           }}
         >
           <Paper elevation={3} sx={{ p: 4, width: '100%', borderRadius: 2 }}>
@@ -109,7 +109,7 @@ export default function ForgotPassword() {
                       <InputAdornment position="start">
                         <Email color="action" />
                       </InputAdornment>
-                    )
+                    ),
                   }}
                 />
 

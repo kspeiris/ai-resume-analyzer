@@ -61,7 +61,7 @@ export default function History() {
     total: 0,
     averageScore: 0,
     bestScore: 0,
-    improvement: 0
+    improvement: 0,
   });
 
   useEffect(() => {
@@ -89,7 +89,7 @@ export default function History() {
   const calculateStats = (data) => {
     if (data.length === 0) return;
 
-    const scores = data.map(a => a.scores?.overall || 0);
+    const scores = data.map((a) => a.scores?.overall || 0);
     const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
     const best = Math.max(...scores);
 
@@ -103,14 +103,14 @@ export default function History() {
       total: data.length,
       averageScore: Math.round(avg),
       bestScore: best,
-      improvement
+      improvement,
     });
   };
 
   const handleDelete = async (analysisId) => {
     try {
       await deleteAnalysis(analysisId);
-      setAnalyses(analyses.filter(a => a.id !== analysisId));
+      setAnalyses(analyses.filter((a) => a.id !== analysisId));
       toast.success('Analysis deleted successfully');
     } catch (error) {
       toast.error('Failed to delete analysis');
@@ -159,9 +159,10 @@ export default function History() {
     handleMenuClose();
   };
 
-  const filteredAnalyses = analyses.filter(analysis =>
-    analysis.jobDescription?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    new Date(analysis.createdAt).toLocaleDateString().includes(searchTerm)
+  const filteredAnalyses = analyses.filter(
+    (analysis) =>
+      analysis.jobDescription?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      new Date(analysis.createdAt).toLocaleDateString().includes(searchTerm)
   );
 
   const paginatedAnalyses = filteredAnalyses.slice(
@@ -204,11 +205,7 @@ export default function History() {
             >
               Export
             </Button>
-            <Button
-              variant="contained"
-              startIcon={<Refresh />}
-              onClick={fetchAnalyses}
-            >
+            <Button variant="contained" startIcon={<Refresh />} onClick={fetchAnalyses}>
               Refresh
             </Button>
           </Box>
@@ -262,7 +259,8 @@ export default function History() {
                 </Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <Typography variant="h3" sx={{ fontWeight: 700, mr: 1 }}>
-                    {stats.improvement > 0 ? '+' : ''}{stats.improvement}%
+                    {stats.improvement > 0 ? '+' : ''}
+                    {stats.improvement}%
                   </Typography>
                   {stats.improvement > 0 ? (
                     <TrendingUp color="success" />
@@ -295,7 +293,7 @@ export default function History() {
                     {filteredAnalyses.length} results
                   </Typography>
                 </InputAdornment>
-              )
+              ),
             }}
           />
         </Paper>
@@ -310,10 +308,7 @@ export default function History() {
             <Typography color="text.secondary" paragraph>
               Start by uploading your resume and analyzing it against a job description.
             </Typography>
-            <Button
-              variant="contained"
-              onClick={() => navigate('/upload')}
-            >
+            <Button variant="contained" onClick={() => navigate('/upload')}>
               Upload Resume
             </Button>
           </Paper>
@@ -335,9 +330,7 @@ export default function History() {
                   {paginatedAnalyses.map((analysis) => (
                     <TableRow key={analysis.id} hover>
                       <TableCell>
-                        <Typography variant="body2">
-                          {formatDate(analysis.createdAt)}
-                        </Typography>
+                        <Typography variant="body2">{formatDate(analysis.createdAt)}</Typography>
                         <Typography variant="caption" color="text.secondary">
                           {new Date(analysis.createdAt).toLocaleTimeString()}
                         </Typography>
@@ -368,12 +361,7 @@ export default function History() {
                         />
                       </TableCell>
                       <TableCell>
-                        <Chip
-                          label="Completed"
-                          color="success"
-                          size="small"
-                          variant="outlined"
-                        />
+                        <Chip label="Completed" color="success" size="small" variant="outlined" />
                       </TableCell>
                       <TableCell align="right">
                         <IconButton
@@ -382,10 +370,7 @@ export default function History() {
                         >
                           <Visibility />
                         </IconButton>
-                        <IconButton
-                          size="small"
-                          onClick={(e) => handleMenuOpen(e, analysis)}
-                        >
+                        <IconButton size="small" onClick={(e) => handleMenuOpen(e, analysis)}>
                           <MoreVert />
                         </IconButton>
                       </TableCell>
@@ -411,11 +396,7 @@ export default function History() {
         )}
 
         {/* Action Menu */}
-        <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={handleMenuClose}
-        >
+        <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
           <MenuItem onClick={handleView}>
             <ListItemIcon>
               <Visibility fontSize="small" />
@@ -429,12 +410,14 @@ export default function History() {
             <ListItemText>Compare</ListItemText>
           </MenuItem>
           <Divider />
-          <MenuItem onClick={() => {
-            if (selectedAnalysis) {
-              handleDelete(selectedAnalysis.id);
-              handleMenuClose();
-            }
-          }}>
+          <MenuItem
+            onClick={() => {
+              if (selectedAnalysis) {
+                handleDelete(selectedAnalysis.id);
+                handleMenuClose();
+              }
+            }}
+          >
             <ListItemIcon>
               <Delete fontSize="small" />
             </ListItemIcon>

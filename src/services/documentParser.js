@@ -1,15 +1,17 @@
-import * as pdfjsLib from 'pdfjs-dist';
 import mammoth from 'mammoth';
+import * as pdfjsLib from 'pdfjs-dist';
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
 
 export async function extractText(file) {
   const fileType = file.type;
-  
+
   try {
     if (fileType === 'application/pdf') {
       return await extractPDFText(file);
-    } else if (fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+    } else if (
+      fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ) {
       return await extractDOCXText(file);
     } else {
       throw new Error('Unsupported file type');
@@ -28,7 +30,7 @@ async function extractPDFText(file) {
   for (let i = 1; i <= pdf.numPages; i++) {
     const page = await pdf.getPage(i);
     const textContent = await page.getTextContent();
-    const pageText = textContent.items.map(item => item.str).join(' ');
+    const pageText = textContent.items.map((item) => item.str).join(' ');
     fullText += pageText + '\n';
   }
 

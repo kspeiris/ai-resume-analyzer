@@ -11,7 +11,7 @@ import {
   Divider,
   Alert,
   IconButton,
-  InputAdornment
+  InputAdornment,
 } from '@mui/material';
 import {
   Person,
@@ -21,7 +21,7 @@ import {
   LinkedIn,
   GitHub,
   Save,
-  Edit
+  Edit,
 } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
 import { updateUserProfile } from '../../services/userService';
@@ -39,19 +39,19 @@ export default function ProfileSettings() {
     location: userProfile?.location || '',
     linkedin: userProfile?.linkedin || '',
     github: userProfile?.github || '',
-    bio: userProfile?.bio || ''
+    bio: userProfile?.bio || '',
   });
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validate email
     if (!validateEmail(formData.email)) {
       toast.error('Please enter a valid email address');
@@ -85,20 +85,12 @@ export default function ProfileSettings() {
             Profile Settings
           </Typography>
           {!editing ? (
-            <Button
-              variant="outlined"
-              startIcon={<Edit />}
-              onClick={() => setEditing(true)}
-            >
+            <Button variant="outlined" startIcon={<Edit />} onClick={() => setEditing(true)}>
               Edit Profile
             </Button>
           ) : (
             <Box>
-              <Button
-                variant="outlined"
-                onClick={() => setEditing(false)}
-                sx={{ mr: 2 }}
-              >
+              <Button variant="outlined" onClick={() => setEditing(false)} sx={{ mr: 2 }}>
                 Cancel
               </Button>
               <Button
@@ -125,7 +117,7 @@ export default function ProfileSettings() {
                     width: 120,
                     height: 120,
                     bgcolor: 'primary.main',
-                    fontSize: 48
+                    fontSize: 48,
                   }}
                 >
                   {formData.name.charAt(0).toUpperCase()}
@@ -137,7 +129,7 @@ export default function ProfileSettings() {
                       bottom: 0,
                       right: 0,
                       bgcolor: 'background.paper',
-                      boxShadow: 1
+                      boxShadow: 1,
                     }}
                     size="small"
                   >
@@ -167,7 +159,7 @@ export default function ProfileSettings() {
                     <InputAdornment position="start">
                       <Person />
                     </InputAdornment>
-                  )
+                  ),
                 }}
               />
             </Grid>
@@ -186,7 +178,7 @@ export default function ProfileSettings() {
                     <InputAdornment position="start">
                       <Email />
                     </InputAdornment>
-                  )
+                  ),
                 }}
               />
             </Grid>
@@ -205,7 +197,7 @@ export default function ProfileSettings() {
                     <InputAdornment position="start">
                       <Phone />
                     </InputAdornment>
-                  )
+                  ),
                 }}
               />
             </Grid>
@@ -224,7 +216,7 @@ export default function ProfileSettings() {
                     <InputAdornment position="start">
                       <LocationOn />
                     </InputAdornment>
-                  )
+                  ),
                 }}
               />
             </Grid>
@@ -264,7 +256,7 @@ export default function ProfileSettings() {
                     <InputAdornment position="start">
                       <LinkedIn />
                     </InputAdornment>
-                  )
+                  ),
                 }}
               />
             </Grid>
@@ -283,7 +275,7 @@ export default function ProfileSettings() {
                     <InputAdornment position="start">
                       <GitHub />
                     </InputAdornment>
-                  )
+                  ),
                 }}
               />
             </Grid>

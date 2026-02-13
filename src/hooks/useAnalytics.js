@@ -10,6 +10,6 @@ export const useAnalytics = () => {
   }, [location]);
 
   return {
-    trackEvent
+    trackEvent,
   };
 };

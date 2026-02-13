@@ -1,23 +1,18 @@
-import { 
-  collection, 
-  addDoc, 
-  getDoc, 
-  getDocs, 
-  query, 
-  where, 
-  orderBy, 
+import {
+  collection,
+  addDoc,
+  getDoc,
+  getDocs,
+  query,
+  where,
+  orderBy,
   limit,
   doc,
   updateDoc,
   deleteDoc,
-  Timestamp
+  Timestamp,
 } from 'firebase/firestore';
-import { 
-  ref, 
-  uploadBytes, 
-  getDownloadURL, 
-  deleteObject 
-} from 'firebase/storage';
+import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { db, storage } from '../firebase/config';
 
 // Upload resume file and metadata
@@ -44,22 +39,22 @@ export const uploadResume = async (userId, file, extractedText) => {
       metadata: {
         wordCount: extractedText.split(/\s+/).length,
         characterCount: extractedText.length,
-        lastAnalyzed: null
-      }
+        lastAnalyzed: null,
+      },
     };
 
     const docRef = await addDoc(collection(db, 'resumes'), resumeData);
-    
+
     // Update user's resume count
     const userRef = doc(db, 'users', userId);
     await updateDoc(userRef, {
       totalResumes: increment(1),
-      lastResumeUpload: Timestamp.now()
+      lastResumeUpload: Timestamp.now(),
     });
 
     return {
       id: docRef.id,
-      ...resumeData
+      ...resumeData,
     };
   } catch (error) {
     console.error('Error uploading resume:', error);
@@ -80,12 +75,12 @@ export const getUserResumes = async (userId, limitCount = 10) => {
 
     const querySnapshot = await getDocs(q);
     const resumes = [];
-    
+
     querySnapshot.forEach((doc) => {
       resumes.push({
         id: doc.id,
         ...doc.data(),
-        uploadedAt: doc.data().uploadedAt?.toDate()
+        uploadedAt: doc.data().uploadedAt?.toDate(),
       });
     });
 
@@ -101,12 +96,12 @@ export const getResumeById = async (resumeId) => {
   try {
     const docRef = doc(db, 'resumes', resumeId);
     const docSnap = await getDoc(docRef);
-    
+
     if (docSnap.exists()) {
       return {
         id: docSnap.id,
         ...docSnap.data(),
-        uploadedAt: docSnap.data().uploadedAt?.toDate()
+        uploadedAt: docSnap.data().uploadedAt?.toDate(),
       };
     } else {
       throw new Error('Resume not found');
@@ -122,15 +117,15 @@ export const deleteResume = async (resumeId, userId, fileUrl) => {
   try {
     // Delete from Firestore
     await deleteDoc(doc(db, 'resumes', resumeId));
-    
+
     // Delete from Storage
     const storageRef = ref(storage, fileUrl);
     await deleteObject(storageRef);
-    
+
     // Update user count
     const userRef = doc(db, 'users', userId);
     await updateDoc(userRef, {
-      totalResumes: increment(-1)
+      totalResumes: increment(-1),
     });
 
     return { success: true };
@@ -146,7 +141,7 @@ export const updateResume = async (resumeId, updates) => {
     const docRef = doc(db, 'resumes', resumeId);
     await updateDoc(docRef, {
       ...updates,
-      updatedAt: Timestamp.now()
+      updatedAt: Timestamp.now(),
     });
     return { success: true };
   } catch (error) {

@@ -1,42 +1,45 @@
-import React, { useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useDropzone } from 'react-dropzone';
 import {
-  Box,
-  Container,
-  Typography,
-  Paper,
-  Button,
-  Stepper,
-  Step,
-  StepLabel,
-  LinearProgress,
+  Analytics,
+  ArrowForward,
+  CheckCircle,
+  CloudUpload,
+  Description,
+  PictureAsPdf,
+  Refresh,
+  Warning,
+} from '@mui/icons-material';
+import {
   Alert,
+  alpha,
+  Box,
+  Button,
   Card,
   CardContent,
+  Chip,
+  CircularProgress,
+  Container,
+  Grid,
+  LinearProgress,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
-  Chip,
+  Paper,
+  Step,
+  StepLabel,
+  Stepper,
+  Typography,
   useTheme,
-  alpha
 } from '@mui/material';
-import {
-  CloudUpload,
-  PictureAsPdf,
-  Description,
-  CheckCircle,
-  Warning,
-  Analytics,
-  ArrowForward,
-  Refresh
-} from '@mui/icons-material';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useAuth } from '../../contexts/AuthContext';
-import { uploadResume } from '../../services/resumeService';
-import { extractText } from '../../services/documentParser';
+import { AnimatePresence, motion } from 'framer-motion';
+import React, { useCallback, useState } from 'react';
+import { useDropzone } from 'react-dropzone';
 import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
+
+import { useAuth } from '../../contexts/AuthContext';
+import { extractText } from '../../services/documentParser';
+import { uploadResume } from '../../services/resumeService';
 
 const steps = ['Upload Resume', 'Processing', 'Extract Text', 'Complete'];
 
@@ -53,11 +56,14 @@ export default function ResumeUpload() {
 
   const onDrop = useCallback(async (acceptedFiles) => {
     const uploadedFile = acceptedFiles[0];
-    
+
     if (!uploadedFile) return;
 
     // Validate file type
-    const validTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+    const validTypes = [
+      'application/pdf',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    ];
     if (!validTypes.includes(uploadedFile.type)) {
       setError('Please upload a PDF or DOCX file');
       return;
@@ -79,18 +85,18 @@ export default function ResumeUpload() {
     onDrop,
     accept: {
       'application/pdf': ['.pdf'],
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx']
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
     },
-    maxFiles: 1
+    maxFiles: 1,
   });
 
   const processFile = async (uploadedFile) => {
     setProcessing(true);
-    
+
     try {
       // Step 2: Processing
       setActiveStep(1);
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       // Step 3: Extract Text
       setActiveStep(2);
@@ -103,17 +109,16 @@ export default function ResumeUpload() {
 
       // Step 4: Complete
       setActiveStep(3);
-      
+
       // Upload to Firebase
       const resumeData = await uploadResume(currentUser.uid, uploadedFile, text);
-      
+
       toast.success('Resume uploaded successfully!');
-      
+
       // Navigate to job description page after 2 seconds
       setTimeout(() => {
         navigate('/job-description', { state: { resumeId: resumeData.id, resumeText: text } });
       }, 2000);
-      
     } catch (error) {
       console.error('Error processing file:', error);
       setError('Failed to process resume. Please try again.');
@@ -132,19 +137,21 @@ export default function ResumeUpload() {
       hasEducation: /education|degree|university|college/i.test(text),
       hasSkills: /skills|technologies|proficiencies/i.test(text),
       wordCount: text.split(/\s+/).length,
-      bulletPoints: (text.match(/•|\*|-|·/g) || []).length
+      bulletPoints: (text.match(/•|\*|-|·/g) || []).length,
     };
 
-    results.score = Object.values(results).filter(v => typeof v === 'boolean' && v).length * 20;
-    
+    results.score = Object.values(results).filter((v) => typeof v === 'boolean' && v).length * 20;
+
     return results;
   };
 
   const getFileIcon = () => {
     if (!file) return <CloudUpload sx={{ fontSize: 48, color: 'primary.main' }} />;
-    return file.type === 'application/pdf' 
-      ? <PictureAsPdf sx={{ fontSize: 48, color: 'error.main' }} />
-      : <Description sx={{ fontSize: 48, color: 'primary.main' }} />;
+    return file.type === 'application/pdf' ? (
+      <PictureAsPdf sx={{ fontSize: 48, color: 'error.main' }} />
+    ) : (
+      <Description sx={{ fontSize: 48, color: 'primary.main' }} />
+    );
   };
 
   return (
@@ -180,16 +187,18 @@ export default function ResumeUpload() {
                 p: 6,
                 textAlign: 'center',
                 cursor: 'pointer',
-                bgcolor: isDragActive ? alpha(theme.palette.primary.main, 0.04) : 'background.paper',
+                bgcolor: isDragActive
+                  ? alpha(theme.palette.primary.main, 0.04)
+                  : 'background.paper',
                 transition: 'all 0.2s',
                 '&:hover': {
                   borderColor: 'primary.main',
-                  bgcolor: alpha(theme.palette.primary.main, 0.04)
-                }
+                  bgcolor: alpha(theme.palette.primary.main, 0.04),
+                },
               }}
             >
               <input {...getInputProps()} />
-              
+
               <AnimatePresence mode="wait">
                 <motion.div
                   key={file ? 'file' : 'dropzone'}
@@ -198,7 +207,7 @@ export default function ResumeUpload() {
                   exit={{ opacity: 0, scale: 0.9 }}
                 >
                   {getFileIcon()}
-                  
+
                   {file ? (
                     <>
                       <Typography variant="h6" sx={{ mt: 2, fontWeight: 600 }}>
@@ -207,7 +216,7 @@ export default function ResumeUpload() {
                       <Typography variant="body2" color="text.secondary">
                         {(file.size / 1024 / 1024).toFixed(2)} MB
                       </Typography>
-                      
+
                       {activeStep === 3 && (
                         <Chip
                           icon={<CheckCircle />}
@@ -225,7 +234,12 @@ export default function ResumeUpload() {
                       <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
                         or click to browse files
                       </Typography>
-                      <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 2 }}>
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        display="block"
+                        sx={{ mt: 2 }}
+                      >
                         Supported formats: PDF, DOCX (Max 5MB)
                       </Typography>
                     </>
@@ -255,11 +269,15 @@ export default function ResumeUpload() {
           <Grid item xs={12} md={4}>
             <Card>
               <CardContent>
-                <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
+                <Typography
+                  variant="h6"
+                  gutterBottom
+                  sx={{ display: 'flex', alignItems: 'center' }}
+                >
                   <Analytics sx={{ mr: 1 }} />
                   Resume Requirements
                 </Typography>
-                
+
                 <List dense>
                   <ListItem>
                     <ListItemIcon sx={{ minWidth: 36 }}>
@@ -299,7 +317,7 @@ export default function ResumeUpload() {
                   <Typography variant="h6" gutterBottom>
                     Resume Quality Check
                   </Typography>
-                  
+
                   <Box sx={{ position: 'relative', display: 'inline-flex', mb: 2 }}>
                     <CircularProgress
                       variant="determinate"
@@ -307,8 +325,12 @@ export default function ResumeUpload() {
                       size={80}
                       thickness={4}
                       sx={{
-                        color: validationResults.score >= 80 ? 'success.main' :
-                               validationResults.score >= 60 ? 'warning.main' : 'error.main'
+                        color:
+                          validationResults.score >= 80
+                            ? 'success.main'
+                            : validationResults.score >= 60
+                              ? 'warning.main'
+                              : 'error.main',
                       }}
                     />
                     <Box
@@ -341,8 +363,10 @@ export default function ResumeUpload() {
                                 <Warning color="warning" fontSize="small" />
                               )}
                             </ListItemIcon>
-                            <ListItemText 
-                              primary={key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                            <ListItemText
+                              primary={key
+                                .replace(/([A-Z])/g, ' $1')
+                                .replace(/^./, (str) => str.toUpperCase())}
                               secondary={!value && 'Missing'}
                             />
                           </ListItem>

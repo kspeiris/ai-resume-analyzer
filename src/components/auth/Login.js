@@ -1,10 +1,4 @@
-import {
-  Email,
-  Google,
-  Lock,
-  Visibility,
-  VisibilityOff,
-} from '@mui/icons-material';
+import { Email, Google, Lock, Visibility, VisibilityOff } from '@mui/icons-material';
 import {
   Alert,
   Box,
@@ -31,8 +25,11 @@ import { useAuth } from '../../contexts/AuthContext';
 
 const schema = yup.object({
   email: yup.string().email('Invalid email').required('Email is required'),
-  password: yup.string().required('Password is required').min(8, 'Password must be at least 8 characters'),
-  rememberMe: yup.boolean()
+  password: yup
+    .string()
+    .required('Password is required')
+    .min(8, 'Password must be at least 8 characters'),
+  rememberMe: yup.boolean(),
 });
 
 export default function Login() {
@@ -45,9 +42,9 @@ export default function Login() {
   const {
     register,
     handleSubmit,
-    formState: { errors }
+    formState: { errors },
   } = useForm({
-    resolver: yupResolver(schema)
+    resolver: yupResolver(schema),
   });
 
   const onSubmit = async (data) => {
@@ -90,7 +87,7 @@ export default function Login() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            py: 4
+            py: 4,
           }}
         >
           <Paper
@@ -98,7 +95,7 @@ export default function Login() {
             sx={{
               p: 4,
               width: '100%',
-              borderRadius: 2
+              borderRadius: 2,
             }}
           >
             {/* Header */}
@@ -112,7 +109,7 @@ export default function Login() {
                   color: 'primary.main',
                   textDecoration: 'none',
                   display: 'inline-block',
-                  mb: 1
+                  mb: 1,
                 }}
               >
                 AI Resume Analyzer
@@ -144,7 +141,7 @@ export default function Login() {
                     <InputAdornment position="start">
                       <Email color="action" />
                     </InputAdornment>
-                  )
+                  ),
                 }}
               />
 
@@ -164,18 +161,22 @@ export default function Login() {
                   ),
                   endAdornment: (
                     <InputAdornment position="end">
-                      <IconButton
-                        onClick={() => setShowPassword(!showPassword)}
-                        edge="end"
-                      >
+                      <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
                         {showPassword ? <VisibilityOff /> : <Visibility />}
                       </IconButton>
                     </InputAdornment>
-                  )
+                  ),
                 }}
               />
 
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', my: 2 }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  my: 2,
+                }}
+              >
                 <FormControlLabel
                   control={<Checkbox {...register('rememberMe')} color="primary" />}
                   label="Remember me"
@@ -219,12 +220,7 @@ export default function Login() {
             <Box sx={{ textAlign: 'center', mt: 2 }}>
               <Typography variant="body2" color="text.secondary">
                 Don't have an account?{' '}
-                <Link
-                  component={RouterLink}
-                  to="/register"
-                  underline="hover"
-                  fontWeight={600}
-                >
+                <Link component={RouterLink} to="/register" underline="hover" fontWeight={600}>
                   Sign up
                 </Link>
               </Typography>

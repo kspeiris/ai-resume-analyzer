@@ -10,7 +10,7 @@ import {
   doc,
   updateDoc,
   deleteDoc,
-  Timestamp
+  Timestamp,
 } from 'firebase/firestore';
 import { httpsCallable } from 'firebase/functions';
 import { db, functions } from '../firebase/config';
@@ -24,7 +24,7 @@ export const createAnalysis = async (userId, resumeId, resumeText, jobDescriptio
       resumeText,
       jobDescription,
       resumeId,
-      userId
+      userId,
     });
 
     return response.data;
@@ -39,12 +39,12 @@ export const getAnalysis = async (analysisId) => {
   try {
     const docRef = doc(db, 'analyses', analysisId);
     const docSnap = await getDoc(docRef);
-    
+
     if (docSnap.exists()) {
       return {
         id: docSnap.id,
         ...docSnap.data(),
-        createdAt: docSnap.data().createdAt?.toDate()
+        createdAt: docSnap.data().createdAt?.toDate(),
       };
     } else {
       throw new Error('Analysis not found');
@@ -63,7 +63,7 @@ export const getUserAnalyses = async (userId, limitCount = 10, lastDoc = null) =
     }
 
     let q;
-    
+
     if (lastDoc) {
       q = query(
         collection(db, 'analyses'),
@@ -89,7 +89,7 @@ export const getUserAnalyses = async (userId, limitCount = 10, lastDoc = null) =
       analyses.push({
         id: doc.id,
         ...doc.data(),
-        createdAt: doc.data().createdAt?.toDate()
+        createdAt: doc.data().createdAt?.toDate(),
       });
       lastVisible = doc;
     });
@@ -97,7 +97,7 @@ export const getUserAnalyses = async (userId, limitCount = 10, lastDoc = null) =
     return {
       analyses,
       lastDoc: lastVisible,
-      hasMore: analyses.length === limitCount
+      hasMore: analyses.length === limitCount,
     };
   } catch (error) {
     console.error('Error fetching analyses:', error);
@@ -121,8 +121,8 @@ export const updateAnalysisFeedback = async (analysisId, feedback) => {
   try {
     const docRef = doc(db, 'analyses', analysisId);
     await updateDoc(docRef, {
-      'userFeedback': feedback,
-      'feedbackSubmittedAt': Timestamp.now()
+      userFeedback: feedback,
+      feedbackSubmittedAt: Timestamp.now(),
     });
     return { success: true };
   } catch (error) {
@@ -147,7 +147,7 @@ export const getAnalysisStats = async (userId) => {
 
     const querySnapshot = await getDocs(q);
     const analyses = [];
-    
+
     querySnapshot.forEach((doc) => {
       analyses.push(doc.data());
     });
@@ -161,27 +161,27 @@ export const getAnalysisStats = async (userId) => {
       scoreHistory: [],
       keywordStats: {
         averageMatched: 0,
-        averageMissing: 0
-      }
+        averageMissing: 0,
+      },
     };
 
     if (analyses.length > 0) {
-      const scores = analyses.map(a => a.scores?.overall || 0);
+      const scores = analyses.map((a) => a.scores?.overall || 0);
       stats.averageScore = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
       stats.bestScore = Math.max(...scores);
       stats.worstScore = Math.min(...scores);
-      
+
       stats.scoreHistory = analyses
         .slice(0, 10)
-        .map(a => ({
+        .map((a) => ({
           date: a.createdAt?.toDate().toLocaleDateString(),
-          score: a.scores?.overall || 0
+          score: a.scores?.overall || 0,
         }))
         .reverse();
 
       const totalMatched = analyses.reduce((sum, a) => sum + (a.keywords?.matchedCount || 0), 0);
       const totalMissing = analyses.reduce((sum, a) => sum + (a.keywords?.missing?.length || 0), 0);
-      
+
       stats.keywordStats.averageMatched = Math.round(totalMatched / analyses.length);
       stats.keywordStats.averageMissing = Math.round(totalMissing / analyses.length);
     }
@@ -198,7 +198,7 @@ export const compareAnalyses = async (analysisId1, analysisId2) => {
   try {
     const [analysis1, analysis2] = await Promise.all([
       getAnalysis(analysisId1),
-      getAnalysis(analysisId2)
+      getAnalysis(analysisId2),
     ]);
 
     return {
@@ -208,8 +208,8 @@ export const compareAnalyses = async (analysisId1, analysisId2) => {
         scoreChange: analysis2.scores.overall - analysis1.scores.overall,
         keywordImprovement: analysis2.keywords.matchedCount - analysis1.keywords.matchedCount,
         formatImprovement: analysis2.scores.format - analysis1.scores.format,
-        impactImprovement: analysis2.scores.impact - analysis1.scores.impact
-      }
+        impactImprovement: analysis2.scores.impact - analysis1.scores.impact,
+      },
     };
   } catch (error) {
     console.error('Error comparing analyses:', error);

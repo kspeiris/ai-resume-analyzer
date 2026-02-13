@@ -98,11 +98,14 @@ export default function AnalysisResults() {
   if (!analysis) {
     return (
       <Container sx={{ py: 8 }}>
-        <Alert severity="error" action={
-          <Button color="inherit" size="small" onClick={() => navigate('/dashboard')}>
-            Go to Dashboard
-          </Button>
-        }>
+        <Alert
+          severity="error"
+          action={
+            <Button color="inherit" size="small" onClick={() => navigate('/dashboard')}>
+              Go to Dashboard
+            </Button>
+          }
+        >
           Analysis not found or you don't have permission to view it.
         </Alert>
       </Container>
@@ -114,7 +117,7 @@ export default function AnalysisResults() {
     { name: 'Keyword', value: analysis.scores.keyword, fill: '#10b981' },
     { name: 'Semantic', value: analysis.scores.semantic, fill: '#7c3aed' },
     { name: 'Format', value: analysis.scores.format, fill: '#f59e0b' },
-    { name: 'Impact', value: analysis.scores.impact, fill: '#ef4444' }
+    { name: 'Impact', value: analysis.scores.impact, fill: '#ef4444' },
   ];
 
   const getScoreColor = (score) => {
@@ -122,8 +125,6 @@ export default function AnalysisResults() {
     if (score >= 60) return 'warning';
     return 'error';
   };
-
-
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -139,25 +140,18 @@ export default function AnalysisResults() {
               Analysis Results
             </Typography>
             <Typography variant="body1" color="text.secondary">
-              Generated on {new Date(analysis.createdAt).toLocaleDateString()} at {new Date(analysis.createdAt).toLocaleTimeString()}
+              Generated on {new Date(analysis.createdAt).toLocaleDateString()} at{' '}
+              {new Date(analysis.createdAt).toLocaleTimeString()}
             </Typography>
           </Box>
           <Box sx={{ display: 'flex', gap: 2 }}>
             <Tooltip title="Download Report">
-              <Button
-                variant="outlined"
-                startIcon={<Download />}
-                onClick={handleExport}
-              >
+              <Button variant="outlined" startIcon={<Download />} onClick={handleExport}>
                 Export
               </Button>
             </Tooltip>
             <Tooltip title="Share Analysis">
-              <Button
-                variant="outlined"
-                startIcon={<Share />}
-                onClick={handleShare}
-              >
+              <Button variant="outlined" startIcon={<Share />} onClick={handleShare}>
                 Share
               </Button>
             </Tooltip>
@@ -370,9 +364,7 @@ export default function AnalysisResults() {
                     Executive Summary
                   </Typography>
                   <Paper sx={{ p: 2, bgcolor: 'background.default', mb: 3 }}>
-                    <Typography>
-                      {analysis.recommendations.summary}
-                    </Typography>
+                    <Typography>{analysis.recommendations.summary}</Typography>
                   </Paper>
                 </Grid>
 
@@ -417,12 +409,7 @@ export default function AnalysisResults() {
                   </Typography>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                     {analysis.recommendations.missingSkills.map((skill, index) => (
-                      <Chip
-                        key={index}
-                        label={skill}
-                        color="primary"
-                        variant="filled"
-                      />
+                      <Chip key={index} label={skill} color="primary" variant="filled" />
                     ))}
                   </Box>
                 </Grid>
@@ -486,9 +473,7 @@ export default function AnalysisResults() {
                       </TableRow>
                       <TableRow>
                         <TableCell>Formatting Compatibility</TableCell>
-                        <TableCell align="right">
-                          {analysis.scores.format}% ATS-friendly
-                        </TableCell>
+                        <TableCell align="right">{analysis.scores.format}% ATS-friendly</TableCell>
                       </TableRow>
                       <TableRow>
                         <TableCell>Impact & Achievements</TableCell>
@@ -513,7 +498,8 @@ export default function AnalysisResults() {
                   Ready to improve your resume?
                 </Typography>
                 <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.9)' }}>
-                  Apply the AI suggestions to make your resume more competitive. Track your progress with another analysis after updating.
+                  Apply the AI suggestions to make your resume more competitive. Track your progress
+                  with another analysis after updating.
                 </Typography>
               </Grid>
               <Grid item xs={12} md={4} sx={{ textAlign: 'right' }}>
@@ -524,8 +510,8 @@ export default function AnalysisResults() {
                     bgcolor: 'white',
                     color: 'primary.main',
                     '&:hover': {
-                      bgcolor: 'grey.100'
-                    }
+                      bgcolor: 'grey.100',
+                    },
                   }}
                   onClick={() => navigate('/upload')}
                 >

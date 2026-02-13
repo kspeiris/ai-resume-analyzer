@@ -2,11 +2,7 @@ import React from 'react';
 import { Box, CircularProgress, Typography, useTheme } from '@mui/material';
 import { motion } from 'framer-motion';
 
-export default function LoadingSpinner({ 
-  fullScreen = false, 
-  message = 'Loading...',
-  size = 40 
-}) {
+export default function LoadingSpinner({ fullScreen = false, message = 'Loading...', size = 40 }) {
   const theme = useTheme();
 
   const content = (
@@ -16,7 +12,7 @@ export default function LoadingSpinner({
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 2
+        gap: 2,
       }}
     >
       <motion.div
@@ -26,18 +22,14 @@ export default function LoadingSpinner({
         transition={{
           duration: 1.5,
           repeat: Infinity,
-          ease: "easeInOut"
+          ease: 'easeInOut',
         }}
       >
         <CircularProgress size={size} />
       </motion.div>
-      
+
       {message && (
-        <Typography 
-          variant="body1" 
-          color="text.secondary"
-          sx={{ mt: 2 }}
-        >
+        <Typography variant="body1" color="text.secondary" sx={{ mt: 2 }}>
           {message}
         </Typography>
       )}
@@ -57,7 +49,7 @@ export default function LoadingSpinner({
           alignItems: 'center',
           justifyContent: 'center',
           backgroundColor: theme.palette.background.default,
-          zIndex: theme.zIndex.modal + 1
+          zIndex: theme.zIndex.modal + 1,
         }}
       >
         {content}

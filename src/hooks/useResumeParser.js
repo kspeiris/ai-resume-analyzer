@@ -39,7 +39,7 @@ export function useResumeParser() {
         metadata,
         fileName: file.name,
         fileSize: file.size,
-        fileType: file.type
+        fileType: file.type,
       };
     } catch (err) {
       setError(err.message);
@@ -59,15 +59,19 @@ export function useResumeParser() {
       projects: '',
       certifications: '',
       languages: '',
-      other: ''
+      other: '',
     };
 
     let currentSection = 'other';
 
-    lines.forEach(line => {
+    lines.forEach((line) => {
       const lowerLine = line.toLowerCase();
-      
-      if (lowerLine.includes('summary') || lowerLine.includes('profile') || lowerLine.includes('objective')) {
+
+      if (
+        lowerLine.includes('summary') ||
+        lowerLine.includes('profile') ||
+        lowerLine.includes('objective')
+      ) {
         currentSection = 'summary';
       } else if (lowerLine.includes('experience') || lowerLine.includes('work')) {
         currentSection = 'experience';
@@ -82,7 +86,7 @@ export function useResumeParser() {
       } else if (lowerLine.includes('language')) {
         currentSection = 'languages';
       }
-      
+
       sections[currentSection] += line + '\n';
     });
 
@@ -99,7 +103,7 @@ export function useResumeParser() {
       phone: text.match(/(\+\d{1,3}[-.]?)?\d{10,}/)?.[0],
       fileName: file.name,
       fileSize: file.size,
-      fileType: file.type
+      fileType: file.type,
     };
   };
 
@@ -107,6 +111,6 @@ export function useResumeParser() {
     parseResume,
     loading,
     error,
-    progress
+    progress,
   };
 }

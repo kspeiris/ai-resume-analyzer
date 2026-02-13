@@ -26,11 +26,11 @@ export function useLocalStorage(key, initialValue) {
 
     try {
       const newValue = value instanceof Function ? value(storedValue) : value;
-      
+
       window.localStorage.setItem(key, JSON.stringify(newValue));
-      
+
       setStoredValue(newValue);
-      
+
       window.dispatchEvent(new Event('local-storage'));
     } catch (error) {
       console.warn(`Error setting localStorage key "${key}":`, error);

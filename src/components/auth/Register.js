@@ -39,11 +39,15 @@ const steps = ['Account', 'Profile', 'Complete'];
 const schema = yup.object({
   name: yup.string().required('Full name is required').min(2, 'Name must be at least 2 characters'),
   email: yup.string().email('Invalid email').required('Email is required'),
-  password: yup.string().required('Password is required').min(8, 'Password must be at least 8 characters'),
-  confirmPassword: yup.string()
+  password: yup
+    .string()
+    .required('Password is required')
+    .min(8, 'Password must be at least 8 characters'),
+  confirmPassword: yup
+    .string()
     .oneOf([yup.ref('password'), null], 'Passwords must match')
     .required('Please confirm your password'),
-  agreeToTerms: yup.boolean().oneOf([true], 'You must agree to the terms and conditions')
+  agreeToTerms: yup.boolean().oneOf([true], 'You must agree to the terms and conditions'),
 });
 
 export default function Register() {
@@ -59,9 +63,9 @@ export default function Register() {
     register,
     handleSubmit,
     watch,
-    formState: { errors }
+    formState: { errors },
   } = useForm({
-    resolver: yupResolver(schema)
+    resolver: yupResolver(schema),
   });
 
   const password = watch('password', '');
@@ -94,8 +98,8 @@ export default function Register() {
   };
 
   const passwordStrength = getPasswordStrength();
-  const passwordColor = passwordStrength >= 80 ? 'success' :
-    passwordStrength >= 50 ? 'warning' : 'error';
+  const passwordColor =
+    passwordStrength >= 80 ? 'success' : passwordStrength >= 50 ? 'warning' : 'error';
 
   return (
     <Container component="main" maxWidth="sm">
@@ -110,7 +114,7 @@ export default function Register() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            py: 4
+            py: 4,
           }}
         >
           <Paper
@@ -118,7 +122,7 @@ export default function Register() {
             sx={{
               p: 4,
               width: '100%',
-              borderRadius: 2
+              borderRadius: 2,
             }}
           >
             {/* Stepper */}
@@ -141,7 +145,7 @@ export default function Register() {
                   color: 'primary.main',
                   textDecoration: 'none',
                   display: 'inline-block',
-                  mb: 1
+                  mb: 1,
                 }}
               >
                 AI Resume Analyzer
@@ -164,9 +168,7 @@ export default function Register() {
                 <Typography variant="h6" gutterBottom>
                   Account Created Successfully!
                 </Typography>
-                <Typography color="text.secondary">
-                  Redirecting to dashboard...
-                </Typography>
+                <Typography color="text.secondary">Redirecting to dashboard...</Typography>
                 <LinearProgress sx={{ mt: 3 }} />
               </Box>
             )}
@@ -193,7 +195,7 @@ export default function Register() {
                       <InputAdornment position="start">
                         <Person color="action" />
                       </InputAdornment>
-                    )
+                    ),
                   }}
                 />
 
@@ -210,7 +212,7 @@ export default function Register() {
                       <InputAdornment position="start">
                         <Email color="action" />
                       </InputAdornment>
-                    )
+                    ),
                   }}
                 />
 
@@ -230,14 +232,11 @@ export default function Register() {
                     ),
                     endAdornment: (
                       <InputAdornment position="end">
-                        <IconButton
-                          onClick={() => setShowPassword(!showPassword)}
-                          edge="end"
-                        >
+                        <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
                           {showPassword ? <VisibilityOff /> : <Visibility />}
                         </IconButton>
                       </InputAdornment>
-                    )
+                    ),
                   }}
                 />
 
@@ -249,8 +248,11 @@ export default function Register() {
                         Password Strength
                       </Typography>
                       <Typography variant="caption" color={`${passwordColor}.main`}>
-                        {passwordStrength >= 80 ? 'Strong' :
-                          passwordStrength >= 50 ? 'Medium' : 'Weak'}
+                        {passwordStrength >= 80
+                          ? 'Strong'
+                          : passwordStrength >= 50
+                            ? 'Medium'
+                            : 'Weak'}
                       </Typography>
                     </Box>
                     <LinearProgress
@@ -285,7 +287,7 @@ export default function Register() {
                           {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
                         </IconButton>
                       </InputAdornment>
-                    )
+                    ),
                   }}
                 />
 
@@ -311,7 +313,7 @@ export default function Register() {
                   variant="outlined"
                   size="large"
                   startIcon={<Google />}
-                  onClick={() => { }}
+                  onClick={() => {}}
                   disabled={loading}
                   sx={{ mb: 2 }}
                 >
@@ -324,12 +326,7 @@ export default function Register() {
               <Box sx={{ textAlign: 'center', mt: 2 }}>
                 <Typography variant="body2" color="text.secondary">
                   Already have an account?{' '}
-                  <Link
-                    component={RouterLink}
-                    to="/login"
-                    underline="hover"
-                    fontWeight={600}
-                  >
+                  <Link component={RouterLink} to="/login" underline="hover" fontWeight={600}>
                     Sign in
                   </Link>
                 </Typography>

@@ -1,45 +1,50 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
 import {
-  Container,
-  Typography,
+  Analytics,
+  Business,
+  Delete,
+  Edit,
+  History,
+  MoreVert,
+  PlayArrow,
+  Save,
+  Work,
+} from '@mui/icons-material';
+import {
+  Alert,
   Box,
-  Paper,
-  TextField,
   Button,
-  Grid,
   Card,
   CardContent,
   Chip,
+  Container,
+  Divider,
+  Grid,
   IconButton,
+  InputAdornment,
+  LinearProgress,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
   Menu,
   MenuItem,
-  LinearProgress,
-  Alert,
-  Divider,
-  Autocomplete
+  Paper,
+  TextField,
+  Typography,
 } from '@mui/material';
-import {
-  Work,
-  Business,
-  Save,
-  History,
-  Analytics,
-  MoreVert,
-  Delete,
-  Edit,
-  PlayArrow
-} from '@mui/icons-material';
 import { motion } from 'framer-motion';
-import { useAuth } from '../../contexts/AuthContext';
-import { 
-  saveJobDescription, 
-  getUserJobDescriptions,
-  deleteJobDescription 
-} from '../../services/jobDescriptionService';
-import { createAnalysis } from '../../services/analysisService';
-import { validateJobDescription } from '../../utils/validators';
+import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import { useLocation, useNavigate } from 'react-router-dom';
+
+import { useAuth } from '../../contexts/AuthContext';
+import { createAnalysis } from '../../services/analysisService';
+import {
+  deleteJobDescription,
+  getUserJobDescriptions,
+  saveJobDescription,
+} from '../../services/jobDescriptionService';
+import { validateJobDescription } from '../../utils/validators';
 
 export default function JobDescription() {
   const navigate = useNavigate();
@@ -81,7 +86,7 @@ export default function JobDescription() {
   const handleDescriptionChange = (e) => {
     const value = e.target.value;
     setDescription(value);
-    
+
     // Real-time validation
     const validation = validateJobDescription(value);
     setValidationErrors(validation.errors);
@@ -128,13 +133,8 @@ export default function JobDescription() {
 
     try {
       setAnalyzing(true);
-      
-      const analysis = await createAnalysis(
-        currentUser.uid,
-        resumeId,
-        resumeText,
-        description
-      );
+
+      const analysis = await createAnalysis(currentUser.uid, resumeId, resumeText, description);
 
       toast.success('Analysis completed successfully!');
       navigate(`/analysis/${analysis.id}`);
@@ -200,8 +200,8 @@ export default function JobDescription() {
               </Box>
 
               <Typography variant="body2" color="text.secondary" paragraph>
-                Paste the job description you want to analyze against your resume.
-                The more detailed the description, the more accurate your analysis will be.
+                Paste the job description you want to analyze against your resume. The more detailed
+                the description, the more accurate your analysis will be.
               </Typography>
 
               <Grid container spacing={2} sx={{ mb: 3 }}>
@@ -228,7 +228,7 @@ export default function JobDescription() {
                         <InputAdornment position="start">
                           <Business />
                         </InputAdornment>
-                      )
+                      ),
                     }}
                   />
                 </Grid>
@@ -247,13 +247,16 @@ export default function JobDescription() {
                 sx={{ mb: 2 }}
               />
 
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  mb: 3,
+                }}
+              >
                 <Box>
-                  <Chip
-                    label={`${wordCount} words`}
-                    size="small"
-                    sx={{ mr: 1 }}
-                  />
+                  <Chip label={`${wordCount} words`} size="small" sx={{ mr: 1 }} />
                   <Chip
                     label={isJDValid ? 'Ready for analysis' : 'Needs more content'}
                     color={isJDValid ? 'success' : 'warning'}
@@ -298,18 +301,14 @@ export default function JobDescription() {
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                   <History sx={{ mr: 1, color: 'primary.main' }} />
-                  <Typography variant="h6">
-                    Saved Job Descriptions
-                  </Typography>
+                  <Typography variant="h6">Saved Job Descriptions</Typography>
                 </Box>
 
                 {loading ? (
                   <LinearProgress />
                 ) : savedJDs.length === 0 ? (
                   <Box sx={{ textAlign: 'center', py: 4 }}>
-                    <Typography color="text.secondary">
-                      No saved job descriptions yet
-                    </Typography>
+                    <Typography color="text.secondary">No saved job descriptions yet</Typography>
                     <Typography variant="caption" color="text.secondary">
                       Save a job description to reuse it later
                     </Typography>
@@ -328,7 +327,7 @@ export default function JobDescription() {
                           border: '1px solid',
                           borderColor: 'divider',
                           borderRadius: 1,
-                          mb: 1
+                          mb: 1,
                         }}
                       >
                         <ListItemText
@@ -349,11 +348,7 @@ export default function JobDescription() {
                   </List>
                 )}
 
-                <Menu
-                  anchorEl={anchorEl}
-                  open={Boolean(anchorEl)}
-                  onClose={handleMenuClose}
-                >
+                <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
                   <MenuItem onClick={handleLoadJD}>
                     <ListItemIcon>
                       <PlayArrow fontSize="small" />
@@ -378,19 +373,19 @@ export default function JobDescription() {
                 </Typography>
                 <List dense>
                   <ListItem>
-                    <ListItemText 
+                    <ListItemText
                       primary="Include full job description"
                       secondary="Copy the complete JD from the job posting"
                     />
                   </ListItem>
                   <ListItem>
-                    <ListItemText 
+                    <ListItemText
                       primary="Keep requirements intact"
                       secondary="Don't edit or remove key requirements"
                     />
                   </ListItem>
                   <ListItem>
-                    <ListItemText 
+                    <ListItemText
                       primary="Add company culture info"
                       secondary="Include values, mission, and culture details"
                     />

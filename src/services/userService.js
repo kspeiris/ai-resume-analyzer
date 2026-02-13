@@ -8,14 +8,14 @@ import {
   where,
   getDocs,
   Timestamp,
-  increment
+  increment,
 } from 'firebase/firestore';
 import {
   updateEmail,
   updatePassword,
   updateProfile,
   sendEmailVerification,
-  sendPasswordResetEmail
+  sendPasswordResetEmail,
 } from 'firebase/auth';
 import { db, auth } from '../firebase/config';
 
@@ -24,13 +24,13 @@ export const getUserProfile = async (userId) => {
   try {
     const docRef = doc(db, 'users', userId);
     const docSnap = await getDoc(docRef);
-    
+
     if (docSnap.exists()) {
       return {
         id: docSnap.id,
         ...docSnap.data(),
         createdAt: docSnap.data().createdAt?.toDate(),
-        lastLogin: docSnap.data().lastLogin?.toDate()
+        lastLogin: docSnap.data().lastLogin?.toDate(),
       };
     } else {
       // Create profile if doesn't exist
@@ -48,15 +48,15 @@ export const getUserProfile = async (userId) => {
           emailNotifications: true,
           darkMode: false,
           language: 'en',
-          autoSave: true
+          autoSave: true,
         },
         stats: {
           totalAnalyses: 0,
           averageScore: 0,
-          improvementRate: 0
-        }
+          improvementRate: 0,
+        },
       };
-      
+
       await setDoc(docRef, newProfile);
       return { id: userId, ...newProfile };
     }
@@ -72,21 +72,21 @@ export const updateUserProfile = async (userId, updates) => {
     const docRef = doc(db, 'users', userId);
     await updateDoc(docRef, {
       ...updates,
-      updatedAt: Timestamp.now()
+      updatedAt: Timestamp.now(),
     });
-    
+
     // Update Auth profile if name changed
     if (updates.name) {
       await updateProfile(auth.currentUser, {
-        displayName: updates.name
+        displayName: updates.name,
       });
     }
-    
+
     // Update Auth email if changed
     if (updates.email && updates.email !== auth.currentUser.email) {
       await updateEmail(auth.currentUser, updates.email);
     }
-    
+
     return { success: true };
   } catch (error) {
     console.error('Error updating profile:', error);
@@ -100,7 +100,7 @@ export const updateUserSettings = async (userId, settings) => {
     const docRef = doc(db, 'users', userId);
     await updateDoc(docRef, {
       settings,
-      updatedAt: Timestamp.now()
+      updatedAt: Timestamp.now(),
     });
     return { success: true };
   } catch (error) {
@@ -147,13 +147,13 @@ export const getUserStats = async (userId) => {
   try {
     const userRef = doc(db, 'users', userId);
     const userSnap = await getDoc(userRef);
-    
+
     if (!userSnap.exists()) {
       throw new Error('User not found');
     }
 
     const userData = userSnap.data();
-    
+
     return {
       totalAnalyses: userData.analysesCount || 0,
       totalResumes: userData.totalResumes || 0,
@@ -161,7 +161,7 @@ export const getUserStats = async (userId) => {
       improvementRate: userData.stats?.improvementRate || 0,
       subscription: userData.subscription || 'free',
       resumeLimit: userData.resumeLimit || 5,
-      remainingAnalyses: (userData.resumeLimit || 5) - (userData.analysesCount || 0)
+      remainingAnalyses: (userData.resumeLimit || 5) - (userData.analysesCount || 0),
     };
   } catch (error) {
     console.error('Error fetching user stats:', error);
@@ -174,22 +174,22 @@ export const updateUserAfterAnalysis = async (userId, score) => {
   try {
     const userRef = doc(db, 'users', userId);
     const userSnap = await getDoc(userRef);
-    
+
     if (userSnap.exists()) {
       const userData = userSnap.data();
       const totalAnalyses = (userData.analysesCount || 0) + 1;
       const currentAvg = userData.stats?.averageScore || 0;
-      const newAvg = ((currentAvg * (totalAnalyses - 1)) + score) / totalAnalyses;
-      
+      const newAvg = (currentAvg * (totalAnalyses - 1) + score) / totalAnalyses;
+
       await updateDoc(userRef, {
         analysesCount: increment(1),
         lastAnalysisDate: Timestamp.now(),
         'stats.totalAnalyses': increment(1),
         'stats.averageScore': Math.round(newAvg),
-        'stats.lastScore': score
+        'stats.lastScore': score,
       });
     }
-    
+
     return { success: true };
   } catch (error) {
     console.error('Error updating user stats:', error);
@@ -202,10 +202,10 @@ export const deleteUserAccount = async (userId) => {
   try {
     // Delete user document
     await deleteDoc(doc(db, 'users', userId));
-    
+
     // Delete user auth
     await auth.currentUser.delete();
-    
+
     return { success: true };
   } catch (error) {
     console.error('Error deleting account:', error);

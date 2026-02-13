@@ -65,7 +65,7 @@ export default function Dashboard() {
       setLoading(true);
       const [analysesData, statsData] = await Promise.all([
         getUserAnalyses(currentUser.uid, 5),
-        getUserStats(currentUser.uid)
+        getUserStats(currentUser.uid),
       ]);
       setAnalyses(analysesData.analyses);
       setStats(statsData);
@@ -82,26 +82,26 @@ export default function Dashboard() {
       title: 'Total Analyses',
       value: stats?.totalAnalyses || 0,
       icon: <Assessment />,
-      color: '#2563eb'
+      color: '#2563eb',
     },
     {
       title: 'Average Score',
       value: `${stats?.averageScore || 0}%`,
       icon: <TrendingUp />,
-      color: '#10b981'
+      color: '#10b981',
     },
     {
       title: 'Resumes Uploaded',
       value: stats?.totalResumes || 0,
       icon: <Description />,
-      color: '#7c3aed'
+      color: '#7c3aed',
     },
     {
       title: 'Improvement Rate',
       value: `${stats?.improvementRate || 0}%`,
       icon: <TrendingUp />,
-      color: '#f59e0b'
-    }
+      color: '#f59e0b',
+    },
   ];
 
   if (loading) {
@@ -151,7 +151,13 @@ export default function Dashboard() {
               >
                 <Card>
                   <CardContent>
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                      }}
+                    >
                       <Box>
                         <Typography color="text.secondary" gutterBottom variant="body2">
                           {stat.title}
@@ -242,14 +248,11 @@ export default function Dashboard() {
         {/* Recent Analyses */}
         <Card>
           <CardContent>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-              <Typography variant="h6">
-                Recent Analyses
-              </Typography>
-              <Button
-                endIcon={<ArrowForward />}
-                onClick={() => navigate('/history')}
-              >
+            <Box
+              sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}
+            >
+              <Typography variant="h6">Recent Analyses</Typography>
+              <Button endIcon={<ArrowForward />} onClick={() => navigate('/history')}>
                 View All
               </Button>
             </Box>
@@ -270,17 +273,18 @@ export default function Dashboard() {
                   {analyses.length > 0 ? (
                     analyses.map((analysis) => (
                       <TableRow key={analysis.id} hover>
-                        <TableCell>
-                          {new Date(analysis.createdAt).toLocaleDateString()}
-                        </TableCell>
-                        <TableCell>
-                          {analysis.jobDescription?.substring(0, 50)}...
-                        </TableCell>
+                        <TableCell>{new Date(analysis.createdAt).toLocaleDateString()}</TableCell>
+                        <TableCell>{analysis.jobDescription?.substring(0, 50)}...</TableCell>
                         <TableCell>
                           <Chip
                             label={`${analysis.scores?.overall}%`}
-                            color={analysis.scores?.overall >= 80 ? 'success' :
-                              analysis.scores?.overall >= 60 ? 'warning' : 'error'}
+                            color={
+                              analysis.scores?.overall >= 80
+                                ? 'success'
+                                : analysis.scores?.overall >= 60
+                                  ? 'warning'
+                                  : 'error'
+                            }
                             size="small"
                           />
                         </TableCell>
@@ -288,18 +292,10 @@ export default function Dashboard() {
                           {analysis.keywords?.matchedCount || 0}/{analysis.keywords?.total || 0}
                         </TableCell>
                         <TableCell>
-                          <Chip
-                            label="Completed"
-                            color="success"
-                            size="small"
-                            variant="outlined"
-                          />
+                          <Chip label="Completed" color="success" size="small" variant="outlined" />
                         </TableCell>
                         <TableCell align="right">
-                          <Button
-                            size="small"
-                            onClick={() => navigate(`/analysis/${analysis.id}`)}
-                          >
+                          <Button size="small" onClick={() => navigate(`/analysis/${analysis.id}`)}>
                             View
                           </Button>
                         </TableCell>
