@@ -1,10 +1,15 @@
-// Email validation
+/**
+ * Validates email format using regex
+ */
 export const validateEmail = (email) => {
   const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return re.test(email);
 };
 
-// Password validation
+/**
+ * Validates password complexity requirements
+ * @returns {Object} Validation state and error messages
+ */
 export const validatePassword = (password) => {
   const errors = [];
 
@@ -30,12 +35,16 @@ export const validatePassword = (password) => {
   };
 };
 
-// Name validation
+/**
+ * Validates name length
+ */
 export const validateName = (name) => {
   return name.length >= 2 && name.length <= 50;
 };
 
-// Resume file validation
+/**
+ * Validates resume file type and size
+ */
 export const validateResumeFile = (file) => {
   const errors = [];
   const validTypes = [
@@ -58,7 +67,9 @@ export const validateResumeFile = (file) => {
   };
 };
 
-// Job description validation
+/**
+ * Validates job description length and presence
+ */
 export const validateJobDescription = (description) => {
   const errors = [];
 
@@ -80,13 +91,17 @@ export const validateJobDescription = (description) => {
   };
 };
 
-// Phone number validation
+/**
+ * Validates phone number format
+ */
 export const validatePhone = (phone) => {
-  const re = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/;
+  const re = /^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/;
   return re.test(phone);
 };
 
-// URL validation
+/**
+ * Validates URL string format
+ */
 export const validateURL = (url) => {
   try {
     new URL(url);
@@ -96,7 +111,9 @@ export const validateURL = (url) => {
   }
 };
 
-// Form field validation
+/**
+ * Generic field validator based on custom rules
+ */
 export const validateField = (name, value, rules = {}) => {
   const errors = [];
 

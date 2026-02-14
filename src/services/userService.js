@@ -2,7 +2,6 @@ import {
   updateEmail,
   updatePassword,
   updateProfile,
-  sendEmailVerification,
   sendPasswordResetEmail,
 } from 'firebase/auth';
 
@@ -18,19 +17,31 @@ import {
 
 import { db, auth } from '../firebase/config';
 
+/**
+ * Local storage keys for hybrid persistence
+ */
 const LOCAL_ANALYSES_KEY = 'resume_analyzer_local_analyses_v1';
 const LOCAL_RESUMES_KEY = 'resume_analyzer_local_resumes_v1';
 const LOCAL_PROFILES_KEY = 'resume_analyzer_local_profiles_v1';
 
+/**
+ * Utility to safe-read JSON from localStorage
+ * @param {string} key - Storage key
+ * @param {*} fallback - Default value if key is missing or invalid
+ */
 const readJson = (key, fallback) => {
   try {
     const raw = localStorage.getItem(key);
     return raw ? JSON.parse(raw) : fallback;
-  } catch (_error) {
+  } catch {
     return fallback;
   }
 };
 
+/**
+ * Computes user performance metrics from local records
+ * @param {string} userId
+ */
 const getLocalUserStats = (userId) => {
   const profiles = readJson(LOCAL_PROFILES_KEY, {});
   const profile = profiles[userId] || {};
@@ -72,7 +83,10 @@ const getLocalUserStats = (userId) => {
   };
 };
 
-// Get user profile
+/**
+ * Fetches or initializes user profile data from Firestore
+ * @param {string} userId - Auth UID
+ */
 export const getUserProfile = async (userId) => {
   try {
     const docRef = doc(db, 'users', userId);
@@ -86,7 +100,6 @@ export const getUserProfile = async (userId) => {
         lastLogin: docSnap.data().lastLogin?.toDate(),
       };
     } else {
-      // Create profile if doesn't exist
       const user = auth.currentUser;
       const newProfile = {
         name: user.displayName || '',
@@ -119,7 +132,9 @@ export const getUserProfile = async (userId) => {
   }
 };
 
-// Update user profile
+/**
+ * Updates Firestore profile and synchronizes with Firebase Auth
+ */
 export const updateUserProfile = async (userId, updates) => {
   try {
     const docRef = doc(db, 'users', userId);
@@ -128,14 +143,12 @@ export const updateUserProfile = async (userId, updates) => {
       updatedAt: Timestamp.now(),
     });
 
-    // Update Auth profile if name changed
     if (updates.name) {
       await updateProfile(auth.currentUser, {
         displayName: updates.name,
       });
     }
 
-    // Update Auth email if changed
     if (updates.email && updates.email !== auth.currentUser.email) {
       await updateEmail(auth.currentUser, updates.email);
     }
@@ -147,7 +160,9 @@ export const updateUserProfile = async (userId, updates) => {
   }
 };
 
-// Update user settings
+/**
+ * Persists user preference settings to Firestore
+ */
 export const updateUserSettings = async (userId, settings) => {
   try {
     const docRef = doc(db, 'users', userId);
@@ -162,7 +177,9 @@ export const updateUserSettings = async (userId, settings) => {
   }
 };
 
-// Change password
+/**
+ * Updates current user's password in Firebase Auth
+ */
 export const changePassword = async (newPassword) => {
   try {
     await updatePassword(auth.currentUser, newPassword);
@@ -173,18 +190,9 @@ export const changePassword = async (newPassword) => {
   }
 };
 
-// Send verification email
-export const sendVerificationEmail = async () => {
-  try {
-    await sendEmailVerification(auth.currentUser);
-    return { success: true };
-  } catch (error) {
-    console.error('Error sending verification:', error);
-    throw error;
-  }
-};
-
-// Reset password
+/**
+ * Triggers a password reset email
+ */
 export const resetPassword = async (email) => {
   try {
     await sendPasswordResetEmail(auth, email);
@@ -195,20 +203,19 @@ export const resetPassword = async (email) => {
   }
 };
 
-// Get user statistics
+/**
+ * Aggregates user stats, prioritizing local data for performance
+ * Falls back to Firestore if local data is insufficient
+ */
 export const getUserStats = async (userId) => {
-  // Always try local stats first as it's faster and works offline/with CORS issues
   const localStats = getLocalUserStats(userId);
 
   try {
-    // If we have some local analyses, we can optionally just return those
-    // to keep the UI snappy. We only check Firestore if we want to sync.
     if (localStats.totalAnalyses > 0) {
       return localStats;
     }
 
     const userRef = doc(db, 'users', userId);
-    // Add a simple timeout/protection would be better, but for now:
     const userSnap = await getDoc(userRef);
 
     if (!userSnap.exists()) {
@@ -233,7 +240,11 @@ export const getUserStats = async (userId) => {
   }
 };
 
-// Update user after analysis
+/**
+ * Updates user performance trackers after a successful analysis
+ * @param {string} userId
+ * @param {number} score - Achieved ATS score
+ */
 export const updateUserAfterAnalysis = async (userId, score) => {
   try {
     const userRef = doc(db, 'users', userId);
@@ -261,15 +272,13 @@ export const updateUserAfterAnalysis = async (userId, score) => {
   }
 };
 
-// Delete user account
+/**
+ * Permanently removes user data from Firestore and deletes Auth account
+ */
 export const deleteUserAccount = async (userId) => {
   try {
-    // Delete user document
     await deleteDoc(doc(db, 'users', userId));
-
-    // Delete user auth
     await auth.currentUser.delete();
-
     return { success: true };
   } catch (error) {
     console.error('Error deleting account:', error);

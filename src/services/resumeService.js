@@ -15,9 +15,16 @@ import {
 
 import { db } from '../firebase/config';
 
+/**
+ * Local storage configuration for resume persistence
+ */
 const LOCAL_RESUMES_KEY = 'resume_analyzer_local_resumes_v1';
 const LOCAL_RESUME_LIMIT = 1;
 
+/**
+ * Reads resume data from local storage
+ * @returns {Array} List of resume objects
+ */
 const readLocalResumes = () => {
   try {
     const raw = localStorage.getItem(LOCAL_RESUMES_KEY);
@@ -28,10 +35,18 @@ const readLocalResumes = () => {
   }
 };
 
+/**
+ * Writes resume data to local storage
+ * @param {Array} resumes
+ */
 const writeLocalResumes = (resumes) => {
   localStorage.setItem(LOCAL_RESUMES_KEY, JSON.stringify(resumes));
 };
 
+/**
+ * Converts a File object to a Base64 string for storage
+ * @param {File} file
+ */
 const fileToBase64 = (file) =>
   new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -40,7 +55,12 @@ const fileToBase64 = (file) =>
     reader.readAsDataURL(file);
   });
 
-// Upload resume file and metadata
+/**
+ * Handles resume upload, metadata creation, and local persistence
+ * @param {string} userId
+ * @param {File} file
+ * @param {string} extractedText
+ */
 export const uploadResume = async (userId, file, extractedText) => {
   try {
     if (!userId) throw new Error('User ID is required for upload');
@@ -72,7 +92,7 @@ export const uploadResume = async (userId, file, extractedText) => {
     try {
       writeLocalResumes(next);
     } catch {
-      // Clear previous entries and retry once when storage is full.
+      // Emergency flush and retry if quota exceeded
       writeLocalResumes([localResume]);
     }
 
@@ -83,7 +103,9 @@ export const uploadResume = async (userId, file, extractedText) => {
   }
 };
 
-// Get all resumes for a user
+/**
+ * Retrieves resumes for a user, prioritizing local entries then falling back to Firestore
+ */
 export const getUserResumes = async (userId, limitCount = 10) => {
   try {
     const localResumes = readLocalResumes()
@@ -124,7 +146,9 @@ export const getUserResumes = async (userId, limitCount = 10) => {
   }
 };
 
-// Get single resume by ID
+/**
+ * Fetches a single resume by ID from local storage or Firestore
+ */
 export const getResumeById = async (resumeId) => {
   try {
     const localResume = readLocalResumes().find((resume) => resume.id === resumeId);
@@ -153,7 +177,9 @@ export const getResumeById = async (resumeId) => {
   }
 };
 
-// Delete resume
+/**
+ * Performs logical delete locally and physical delete in Firestore
+ */
 export const deleteResume = async (resumeId, userId) => {
   try {
     const localResumes = readLocalResumes();
@@ -164,10 +190,8 @@ export const deleteResume = async (resumeId, userId) => {
       return { success: true };
     }
 
-    // Delete from Firestore
     await deleteDoc(doc(db, 'resumes', resumeId));
 
-    // Update user count
     const userRef = doc(db, 'users', userId);
     await updateDoc(userRef, {
       totalResumes: increment(-1),
@@ -180,7 +204,9 @@ export const deleteResume = async (resumeId, userId) => {
   }
 };
 
-// Update resume metadata
+/**
+ * Updates resume metadata in Firestore
+ */
 export const updateResume = async (resumeId, updates) => {
   try {
     const docRef = doc(db, 'resumes', resumeId);
@@ -195,7 +221,9 @@ export const updateResume = async (resumeId, updates) => {
   }
 };
 
-// Get latest resume
+/**
+ * Convenience method to get the most recently uploaded resume
+ */
 export const getLatestResume = async (userId) => {
   try {
     const localLatest = readLocalResumes().find((resume) => resume.userId === userId);

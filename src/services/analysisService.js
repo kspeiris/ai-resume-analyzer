@@ -1,7 +1,13 @@
-// Local storage key for analysis results
+/**
+ * Local storage key and configuration for persistency
+ */
 const LOCAL_ANALYSES_KEY = 'resume_analyzer_local_analyses_v1';
 const LOCAL_ANALYSIS_LIMIT = 50;
 
+/**
+ * Reads analysis results from local storage
+ * @returns {Array} List of analysis objects
+ */
 const readLocalAnalyses = () => {
   try {
     const raw = localStorage.getItem(LOCAL_ANALYSES_KEY);
@@ -12,11 +18,20 @@ const readLocalAnalyses = () => {
   }
 };
 
+/**
+ * Writes analysis results to local storage
+ * @param {Array} analyses - List of analysis objects to persist
+ */
 const writeLocalAnalyses = (analyses) => {
   localStorage.setItem(LOCAL_ANALYSES_KEY, JSON.stringify(analyses));
 };
 
-// Local analysis logic (mocking the AI)
+/**
+ * Simulates AI analysis logic for local-first use
+ * @param {string} resumeText - Extracted text from resume
+ * @param {string} jobDescription - Target job description
+ * @returns {Object} Analysis metrics and recommendations
+ */
 const performLocalAnalysis = (resumeText, jobDescription) => {
   const resumeWords = resumeText.toLowerCase().split(/\W+/);
   const jdWords = jobDescription.toLowerCase().split(/\W+/);
@@ -43,7 +58,7 @@ const performLocalAnalysis = (resumeText, jobDescription) => {
   const missingKeywords = jdKeywords.filter((w) => !resumeWords.includes(w)).slice(0, 10);
 
   const matchRate = jdKeywords.length > 0 ? matchedKeywords.length / jdKeywords.length : 0;
-  const overallScore = Math.min(100, Math.round(matchRate * 100 + 20)); // Base score + keyword match
+  const overallScore = Math.min(100, Math.round(matchRate * 100 + 20));
 
   return {
     jobDescription,
@@ -89,11 +104,16 @@ const performLocalAnalysis = (resumeText, jobDescription) => {
   };
 };
 
-// Create new analysis
+/**
+ * Creates a new analysis session
+ * @param {string} userId - Current user unique identifier
+ * @param {string} resumeId - Reference to the resume document
+ * @param {string} resumeText - Text content to analyze
+ * @param {string} jobDescription - Target job requirements
+ */
 export const createAnalysis = async (userId, resumeId, resumeText, jobDescription) => {
   try {
-    console.log('Performing local analysis...');
-    // Simulate some delay for AI feel
+    // Artificial delay to simulate processing time
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
     const analysisResults = performLocalAnalysis(resumeText, jobDescription);
@@ -121,7 +141,10 @@ export const createAnalysis = async (userId, resumeId, resumeText, jobDescriptio
   }
 };
 
-// Get analysis by ID
+/**
+ * Retrieves a specific analysis by ID
+ * @param {string} analysisId
+ */
 export const getAnalysis = async (analysisId) => {
   try {
     const analysis = readLocalAnalyses().find((a) => a.id === analysisId);
@@ -139,8 +162,12 @@ export const getAnalysis = async (analysisId) => {
   }
 };
 
-// Get user analyses with pagination
-export const getUserAnalyses = async (userId, limitCount = 10, _lastDoc = null) => {
+/**
+ * Fetches all analyses for a specific user
+ * @param {string} userId
+ * @param {number} limitCount
+ */
+export const getUserAnalyses = async (userId, limitCount = 10) => {
   try {
     if (!userId) {
       throw new Error('User ID is required to fetch analyses');
@@ -156,7 +183,7 @@ export const getUserAnalyses = async (userId, limitCount = 10, _lastDoc = null) 
 
     return {
       analyses,
-      lastDoc: null, // Paging not fully implemented for local storage here
+      lastDoc: null,
       hasMore: analyses.length === limitCount,
     };
   } catch (error) {
@@ -165,7 +192,10 @@ export const getUserAnalyses = async (userId, limitCount = 10, _lastDoc = null) 
   }
 };
 
-// Delete analysis
+/**
+ * Permanently deletes an analysis result
+ * @param {string} analysisId
+ */
 export const deleteAnalysis = async (analysisId) => {
   try {
     const current = readLocalAnalyses();
@@ -178,7 +208,9 @@ export const deleteAnalysis = async (analysisId) => {
   }
 };
 
-// Update analysis feedback
+/**
+ * Stores user feedback for an analysis session
+ */
 export const updateAnalysisFeedback = async (analysisId, feedback) => {
   try {
     const current = readLocalAnalyses();
@@ -196,7 +228,9 @@ export const updateAnalysisFeedback = async (analysisId, feedback) => {
   }
 };
 
-// Get analysis statistics
+/**
+ * Aggregates performance statistics for a user
+ */
 export const getAnalysisStats = async (userId) => {
   try {
     if (!userId) {
@@ -205,7 +239,6 @@ export const getAnalysisStats = async (userId) => {
 
     const analyses = readLocalAnalyses().filter((a) => a.userId === userId);
 
-    // Calculate statistics
     const stats = {
       total: analyses.length,
       averageScore: 0,
@@ -246,7 +279,9 @@ export const getAnalysisStats = async (userId) => {
   }
 };
 
-// Compare two analyses
+/**
+ * Compares two analysis metrics to track progress
+ */
 export const compareAnalyses = async (analysisId1, analysisId2) => {
   try {
     const [analysis1, analysis2] = await Promise.all([

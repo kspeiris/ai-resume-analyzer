@@ -1,3 +1,9 @@
+/**
+ * @fileoverview Authentication context for managing Firebase Auth state and local fallback profiles.
+ */
+
+import React, { createContext, useContext, useState, useEffect } from 'react';
+
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -6,20 +12,26 @@ import {
   updateProfile,
 } from 'firebase/auth';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-
 import toast from 'react-hot-toast';
 
 import { auth } from '../firebase/config';
 
 const AuthContext = createContext();
 
+/**
+ * Custom hook to access AuthContext
+ */
 export function useAuth() {
   return useContext(AuthContext);
 }
 
 const LOCAL_PROFILES_KEY = 'resume_analyzer_local_profiles_v1';
 
+/**
+ * Retrieves a user profile from local storage
+ * @param {string} uid - User identifier
+ * @returns {Object|null}
+ */
 const getLocalProfile = (uid) => {
   try {
     const raw = localStorage.getItem(LOCAL_PROFILES_KEY);
@@ -31,6 +43,11 @@ const getLocalProfile = (uid) => {
   }
 };
 
+/**
+ * Persists a user profile to local storage as fallback
+ * @param {string} uid
+ * @param {Object} profile
+ */
 const saveLocalProfile = (uid, profile) => {
   try {
     const raw = localStorage.getItem(LOCAL_PROFILES_KEY);
@@ -42,17 +59,22 @@ const saveLocalProfile = (uid, profile) => {
   }
 };
 
+/**
+ * Provider component for global authentication state
+ */
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  /**
+   * Register a new user and initialize their profile
+   */
   async function signup(email, password, name) {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(userCredential.user, { displayName: name });
 
-      // Create user profile in localStorage
       const profileData = {
         name,
         email,
@@ -77,6 +99,9 @@ export function AuthProvider({ children }) {
     }
   }
 
+  /**
+   * Log in an existing user
+   */
   async function login(email, password) {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
@@ -88,6 +113,9 @@ export function AuthProvider({ children }) {
     }
   }
 
+  /**
+   * Sign out current user
+   */
   async function logout() {
     try {
       await signOut(auth);
@@ -107,7 +135,7 @@ export function AuthProvider({ children }) {
         if (profile) {
           setUserProfile(profile);
         } else {
-          // Fallback if profile doesn't exist locally (could happen on new device)
+          // Fallback if profile doesn't exist locally
           const fallbackProfile = {
             name: user.displayName || 'User',
             email: user.email,
